@@ -16,7 +16,7 @@ class _Filter(object):
 class ParallelList(UserList):
     
     def __init__(self, *args, **kwargs):
-        self.pool = Pool(maxtasksperchild=10000)
+        self.pool = Pool(maxtasksperchild=2500)
         self._chunksize = None
         super(ParallelList, self).__init__(*args, **kwargs)
         
@@ -33,18 +33,18 @@ class ParallelList(UserList):
         return self._chunksize
             
     def foreach(self, func):
-        self.data = self.pool.map(func, self.data, self.chunksize)
+        self.data = self.pool.map(func, self, self.chunksize)
         return self
     
     def filter(self, pred):
         _filter = _Filter(pred)
-        return ParallelList(i for i in self.pool.imap(_filter, self.data, self.chunksize) if i)
+        return ParallelList(i for i in self.pool.imap(_filter, self, self.chunksize) if i)
         
     def map(self, func):
-        return ParallelList(self.pool.map(func, self.data, self.chunksize))
+        return ParallelList(self.pool.map(func, self, self.chunksize))
         
     def flatten(self):
-        return ParallelList(chain(*self.data))
+        return ParallelList(chain(*self))
         
     def flatmap(self, func):
         data = self.flatten()

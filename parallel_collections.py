@@ -1,70 +1,46 @@
 from multiprocessing import Pool
 from itertools import chain, imap
 from functools import partial
+from UserList import UserList
+from UserDict import UserDict
 
 
-class BaseParallelCollection(object):
+
+class ParallelList(UserList):
     
-    def __init__(self, inner_collection):
-        self.inner_collection = inner_collection or list()
+    def __init__(self, *args, **kwargs):
         self.pool = Pool()
-    
-    def __len__(self):
-        return len(self.inner_collection)
-        
-    def __reversed__(self):
-        return reversed(self.inner_collection)
+        self._chunksize = None
+        super(ParallelList, self).__init__(*args, **kwargs)
         
     def __iter__(self):
-        return iter(self.inner_collection)
+        return iter(self.data)
     
-    def __getitem__(self, key):
-        return self.inner_collection[key]
-    
-    def __setitem__(self, key, value):
-        self.inner_collection[key] = value
-        
-    def __contains__(self, item):
-        return item in self.inner_collection
-        
-    def __delitem__(self, key):
-        self.inner_collection.remove(key)
-
-
-class ParallelSeq(BaseParallelCollection):
-    
-    def __init__(self, inner_collection):
-        self.inner_collection = inner_collection or list()
-        self.pool = Pool()
-        
-    def __iter__(self):
-        for i in self.inner_collection:
-            yield i
+    @property        
+    def chunksize(self):
+        if not self._chunksize:
+            if len(self)/4 > 1:
+                self._chunksize = len(self)/4
+            else:
+                self._chunksize = 1
+        return self._chunksize
+            
+    def foreach(self, func):
+        self.data = self.pool.map(func, self.data, self.chunksize)
+        return self
         
     def map(self, func):
-        inner_collection = list(self)
-        if len(inner_collection)/4 > 1:
-            chunksize = len(inner_collection)/4
-        else:
-            chunksize = 1
-        self.inner_collection = self.pool.imap(func, inner_collection, chunksize)
-        return self
+        return ParallelList(self.pool.map(func, self.data, self.chunksize))
         
     def flatten(self):
-        self.inner_collection = chain(*self.inner_collection)
-        return self
+        return ParallelList(chain(*self.data))
         
     def flatmap(self, func):
-        inner_collection = list(self.flatten())
-        if len(inner_collection)/4 > 1:
-            chunksize = len(inner_collection)/4
-        else:
-            chunksize = 1
-        self.inner_collection = self.pool.imap(func, inner_collection, chunksize)
-        return self
+        data = self.flatten()
+        return ParallelList(self.pool.map(func, data, self.chunksize))
         
     def reduce(self, function, initializer=None):
-        it = iter(self.inner_collection)
+        it = iter(self.data)
         if initializer is None:
             try:
                 initializer = next(it)

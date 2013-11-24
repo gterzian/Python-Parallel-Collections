@@ -16,7 +16,7 @@ class _Filter(object):
 class ParallelList(UserList):
     
     def __init__(self, *args, **kwargs):
-        self.pool = Pool()
+        self.pool = Pool(maxtasksperchild=10000)
         self._chunksize = None
         super(ParallelList, self).__init__(*args, **kwargs)
         

@@ -19,6 +19,11 @@ class TestSequence(unittest.TestCase):
     def test_map(self):
         p = ParallelList([range(10),range(10)])
         self.assertEquals(p.map(double), map(double, [range(10),range(10)]))
+    
+    def test_filter(self):
+        p = ParallelList(['a','2','3'])
+        pred = is_digit
+        self.assertEquals(p.filter(pred), ParallelList(['2','3']))
         
     def test_flatmap(self):
         p = ParallelList([range(10),range(10)])
@@ -35,6 +40,8 @@ class TestSequence(unittest.TestCase):
         p = ParallelList(['a', 'a', 'b'])
         self.assertEquals(dict(a=['a','a'], b=['b',]), p.reduce(group_letters, defaultdict(list)))
 
+def is_digit(item):
+    return item.isdigit()
 
 def add_up(x,y):
     return x+y   

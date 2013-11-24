@@ -4,7 +4,14 @@ from functools import partial
 from UserList import UserList
 from UserDict import UserDict
 
-
+class _Filter(object):
+    
+    def __init__(self, pred):
+        self.pred = pred
+        
+    def __call__(self, item):
+        if self.pred(item):
+            return item
 
 class ParallelList(UserList):
     
@@ -28,6 +35,10 @@ class ParallelList(UserList):
     def foreach(self, func):
         self.data = self.pool.map(func, self.data, self.chunksize)
         return self
+    
+    def filter(self, pred):
+        _filter = _Filter(pred)
+        return ParallelList(i for i in self.pool.imap(_filter, self.data, self.chunksize) if i)
         
     def map(self, func):
         return ParallelList(self.pool.map(func, self.data, self.chunksize))

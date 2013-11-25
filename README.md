@@ -41,6 +41,7 @@ Since every operation returns a collection, these can be chained.
 ['2', '4', '6', '8', '10', '12']
 ```
 
+####Regarding lambdas and closures
 Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a `__call__` method defined.
 ```python
 >>> class multiply(object):
@@ -96,7 +97,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> filtered
 ['2', '3']
 
-def is_digit_dict(item):
+>>>def is_digit_dict(item):
 ...    return item[1].isdigit()
 ...
 >>>p = ParallelDict(zip(range(3), ['a','2', '3',]))

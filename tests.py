@@ -36,8 +36,8 @@ class TestList(unittest.TestCase):
     
     def test_chaining(self):
         p = ParallelList([range(10),range(10)])
-        i = ParallelList([range(10),range(10)])
-        self.assertEquals(p.flatten().map(double), i.flatmap(double))
+        self.assertEquals(p.flatten().map(double), p.flatmap(double))
+        
     
     def test_reduce(self):
         p = ParallelList(['a', 'a', 'b'])
@@ -51,9 +51,6 @@ class TestDict(unittest.TestCase):
     def test_flatten(self):
         d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
         self.assertEqual(d.flatten(), ParallelDict(zip(range(2), [[1,2,3,4],[3,4]])))
-        print d
-        for i in d.flatten():
-            print i
     
     def test_foreach(self):
         d = ParallelDict(zip([i for i in range(10)], range(10)))

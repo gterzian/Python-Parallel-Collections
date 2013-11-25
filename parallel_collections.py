@@ -1,9 +1,11 @@
-from multiprocessing import Pool
+from concurrent import futures
 from itertools import chain, imap
 from functools import partial
 from UserList import UserList
 from UserDict import UserDict
 
+
+Pool = futures.ProcessPoolExecutor()
 
 class Filter(object):
     
@@ -31,48 +33,39 @@ class ParallelList(UserList, ParallelSeq):
     
     def __init__(self, *args, **kwargs):
         self._chunksize = None
-        self.pool = Pool()
+        self.pool = Pool
         super(ParallelList, self).__init__(*args, **kwargs)
         
     def __iter__(self):
         return iter(self.data)
         
     def foreach(self, func):
-        self.data = self.pool.map(func, self, self.chunksize)
+        self.data = list(self.pool.map(func, self))
         return self
     
     def filter(self, pred):
         _filter = Filter(pred)
-        return ParallelList(i for i in self.pool.imap(_filter, self, self.chunksize) if i)
+        return ParallelList(i for i in self.pool.map(_filter, self, ) if i)
         
     def map(self, func):
-        return ParallelList(self.pool.map(func, self, self.chunksize))
+        return ParallelList(self.pool.map(func, self, ))
         
     def flatten(self):
         return ParallelList(chain(*self))
         
     def flatmap(self, func):
         data = self.flatten()
-        return ParallelList(self.pool.map(func, data, self.chunksize))
+        return ParallelList(self.pool.map(func, data, ))
         
     def reduce(self, function, initializer=None):
-        it = iter(self)
-        if initializer is None:
-            try:
-                initializer = next(it)
-            except StopIteration:
-                raise TypeError('reduce() of empty sequence with no initial value')
-        accum_value = initializer
-        for x in it:
-            accum_value = function(accum_value, x)
-        return accum_value
+        return reduce(function, self, initializer)
         
         
 class ParallelDict(UserDict, ParallelSeq):
     
     def __init__(self, *args, **kwargs):
         self._chunksize = None
-        self.pool = Pool()
+        self.pool = Pool
         super(ParallelDict, self).__init__(*args, **kwargs)
         
     def __iter__(self):
@@ -80,15 +73,15 @@ class ParallelDict(UserDict, ParallelSeq):
             yield i
             
     def foreach(self, func):
-        self.data =  dict(self.pool.map(func, self, self.chunksize))
+        self.data =  dict(self.pool.map(func, self, ))
         return self
     
     def filter(self, pred):
         _filter = Filter(pred)
-        return ParallelDict(i for i in self.pool.imap(_filter, self, self.chunksize) if i)
+        return ParallelDict(i for i in self.pool.map(_filter, self, ) if i)
         
     def map(self, func):
-        return ParallelDict(self.pool.map(func, self, self.chunksize))
+        return ParallelDict(self.pool.map(func, self, ))
         
     def flatten(self):
         flat = []
@@ -101,7 +94,7 @@ class ParallelDict(UserDict, ParallelSeq):
         
     def flatmap(self, func):
         data = self.flatten()
-        return ParallelDict(self.pool.map(func, data, self.chunksize))
+        return ParallelDict(self.pool.map(func, data, ))
         
     def reduce(self, function, initializer=None):
         it = iter(self)

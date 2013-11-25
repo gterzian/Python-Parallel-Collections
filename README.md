@@ -42,3 +42,18 @@ Since every operation returns a collection, these can be chained.
 >>> list_of_list.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']
 ```
+
+Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a __call__ method defined.
+```python
+>>> class multiply(object):
+...     def __init__(self, factor):
+...         self.factor = factor
+...     def __call__(self, item):
+...         return item * self.factor
+... 
+>>> multiply(2)(3)
+6
+>>>list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list.flatmap(multiply(2))
+[2, 4, 6, 8, 10, 12]
+```

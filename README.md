@@ -91,6 +91,7 @@ Functions passed to the flatmap method of a list will be passed every element in
 ```
 
 ####Reduce
+Note at this point reduce is not performed in parallel.
 Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer
 ```python
 >>> def group_letters(all, letter):

@@ -26,7 +26,7 @@ class TestList(unittest.TestCase):
         p = ParallelList(['a','2','3'])
         pred = is_digit
         filtered = p.filter(pred)
-        self.assertEquals(filtered, ParallelList(['2','3']))
+        self.assertEquals(filtered, list(['2','3']))
         self.assertFalse(filtered is p)
         
     def test_flatmap(self):
@@ -49,29 +49,29 @@ class TestDict(unittest.TestCase):
  
     def test_flatten(self):
         d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
-        self.assertEqual(d.flatten(), ParallelDict(zip(range(2), [[1,2,3,4],[3,4]])))
+        self.assertEqual(d.flatten(), dict(zip(range(2), [[1,2,3,4],[3,4]])))
     
     def test_foreach(self):
         d = ParallelDict(zip(range(10), range(10)))
-        self.assertEquals(d.foreach(double_dict), ParallelDict(zip(range(10), (double(i) for i in range(10)))))
+        self.assertEquals(d.foreach(double_dict), dict(zip(range(10), (double(i) for i in range(10)))))
         self.assertTrue(d.foreach(double_dict) is d)
         
     def test_map(self):
         d = ParallelDict(zip(range(10), range(10)))
         mapped = d.map(double_dict)
-        self.assertEquals(mapped, ParallelDict(zip(range(10), (double(i) for i in range(10)))))
+        self.assertEquals(mapped, dict(zip(range(10), (double(i) for i in range(10)))))
         self.assertFalse(mapped is d)
         
     def test_filter(self):
         p = ParallelDict(zip(range(3), ['a','2', '3',]))
         pred = is_digit_dict
-        self.assertEquals(p.filter(pred),  ParallelDict(zip([1,2,], ['2', '3'])))
+        self.assertEquals(p.filter(pred),  dict(zip([1,2,], ['2', '3'])))
         self.assertFalse(p.filter(pred) is p)
         
     def test_flatmap(self):
         d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
         flat_mapped = d.flatmap(double_dict)
-        self.assertEquals(flat_mapped, ParallelDict(zip(range(2), [[2,4,6,8],[6,8]])))
+        self.assertEquals(flat_mapped, dict(zip(range(2), [[2,4,6,8],[6,8]])))
         self.assertFalse(flat_mapped is d)
     
     def test_chaining(self):

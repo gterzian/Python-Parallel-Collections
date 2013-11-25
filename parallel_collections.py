@@ -1,6 +1,5 @@
 from concurrent import futures
 from itertools import chain, imap
-from functools import partial
 from UserList import UserList
 from UserDict import UserDict
 
@@ -18,15 +17,24 @@ class Filter(object):
 
 
 class ParallelSeq(object):
+        
+    def foreach(self, func):
+        raise(NotImplemented)
     
-    @property        
-    def chunksize(self):
-        if not self._chunksize:
-            if len(self)/4 > 1:
-                self._chunksize = len(self)/4
-            else:
-                self._chunksize = 1
-        return self._chunksize
+    def filter(self, pred):
+        raise(NotImplemented)
+        
+    def map(self, func):
+        raise(NotImplemented)
+        
+    def flatten(self):
+        raise(NotImplemented)
+        
+    def flatmap(self, func):
+        raise(NotImplemented)
+        
+    def reduce(self, function, initializer=None):
+        raise(NotImplemented)
     
 
 class ParallelList(UserList, ParallelSeq):

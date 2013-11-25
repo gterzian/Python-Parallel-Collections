@@ -12,13 +12,32 @@ assuming a function called double that doubles a number passed to it:
 ```python
 >>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 >>> flat_list = list_of_list.flatten()
->>> [1, 2, 3, 4, 5, 6]
+[1, 2, 3, 4, 5, 6]
 >>> list_of_list
->>> [[1, 2, 3], [4, 5, 6]]
+[[1, 2, 3], [4, 5, 6]]
 >>> flat_list.map(double)
->>> [2, 4, 6, 8, 10, 12]
+[2, 4, 6, 8, 10, 12]
 >>> list_of_list.flatmap(double)
->>> [2, 4, 6, 8, 10, 12]
+[2, 4, 6, 8, 10, 12]
 ```
 
 As you see every method call returns a new collection. Flatmap is the equivalent of flattening and then mapping. 
+The exception is the foreach method, which is equivalent to map but instead of returning a new collection it operates directly on the 
+current one and returns it. 
+```python
+>>> flat_list
+[1, 2, 3, 4, 5, 6]
+>>> flat_list.foreach(double)
+[2, 4, 6, 8, 10, 12]
+>>> flat_list
+[2, 4, 6, 8, 10, 12]
+```
+
+Since every operation returns a collection, these can be chained.
+```python
+>>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list.flatten().map(double)
+[2, 4, 6, 8, 10, 12]
+>>> list_of_list.flatmap(double).map(str)
+['2', '4', '6', '8', '10', '12']
+```

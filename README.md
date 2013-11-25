@@ -24,12 +24,12 @@ In this package you'll find very simple parallel implementations of list and dic
 
 As you see every method call returns a new collection, instead of changing the current one.
 The exception is the foreach method, which is equivalent to map but instead of returning a new collection it operates directly on the 
-current one and returns it.  
+current one and returns `None`.  
 ```python
 >>> flat_list
 [1, 2, 3, 4, 5, 6]
 >>> flat_list.foreach(double)
-[2, 4, 6, 8, 10, 12]
+None
 >>> flat_list
 [2, 4, 6, 8, 10, 12]
 ```

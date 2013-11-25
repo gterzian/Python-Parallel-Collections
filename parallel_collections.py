@@ -54,7 +54,7 @@ class ParallelList(UserList, ParallelSeq):
         
     def foreach(self, func):
         self.data = list(self.pool.map(func, self))
-        return self
+        return None
     
     def filter(self, pred):
         _filter = _Filter(pred)
@@ -87,7 +87,7 @@ class ParallelDict(UserDict, ParallelSeq):
             
     def foreach(self, func):
         self.data =  dict(self.pool.map(func, self, ))
-        return self
+        return None
     
     def filter(self, pred):
         _filter = _Filter(pred)

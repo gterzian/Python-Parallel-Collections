@@ -13,8 +13,9 @@ class TestList(unittest.TestCase):
     
     def test_foreach(self):
         p = ParallelList([range(10),range(10)])
-        self.assertEquals(p.foreach(double), map(double, [range(10),range(10)]))
-        self.assertTrue(p.foreach(double) is p)
+        p.foreach(double)
+        self.assertEquals(p, map(double, [range(10),range(10)]))
+        self.assertTrue(p.foreach(double) is None)
         
     def test_map(self):
         p = ParallelList([range(10),range(10)])
@@ -53,8 +54,9 @@ class TestDict(unittest.TestCase):
     
     def test_foreach(self):
         d = ParallelDict(zip(range(10), range(10)))
-        self.assertEquals(d.foreach(double_dict), dict(zip(range(10), (double(i) for i in range(10)))))
-        self.assertTrue(d.foreach(double_dict) is d)
+        d.foreach(double_dict)
+        self.assertEquals(d, dict(zip(range(10), (double(i) for i in range(10)))))
+        self.assertTrue(d.foreach(double_dict) is None)
         
     def test_map(self):
         d = ParallelDict(zip(range(10), range(10)))

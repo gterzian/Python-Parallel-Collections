@@ -86,6 +86,19 @@ Functions passed to the flatmap method of a list will be passed every element in
 {0: [2, 4, 6, 8], 1: [6, 8]}
 ```
 
+####Reduce
+Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer
+```python
+>>> def group_letters(all, letter):
+...     all[letter].append(letter)
+...     return all
+... 
+>>>p = ParallelList(['a', 'a', 'b'])
+>>>reduced = p.reduce(group_letters, defaultdict(list))
+>>>reduced
+{'a': ['a', 'a'], 'b': ['b']}
+```
+
 ####Filter
 The Filter method should be passed a predicate, which means a function that will return True or False and will be called once for every element in the list and for every (key, values) in a dict.
 ```python

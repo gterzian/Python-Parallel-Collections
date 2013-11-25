@@ -29,36 +29,147 @@
       </header>
       <section>
         <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+<a name="python-parallel-collections" class="anchor" href="#python-parallel-collections"><span class="octicon octicon-link"></span></a>Python Parallel Collections</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h4>
+<a name="implementations-of-dict-and-list-which-support-parallel-mapreduce-style-operations" class="anchor" href="#implementations-of-dict-and-list-which-support-parallel-mapreduce-style-operations"><span class="octicon octicon-link"></span></a>Implementations of dict and list which support parallel map/reduce style operations</h4>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<h4>
+<a name="who-said-python-was-not-setup-for-multicore-computing" class="anchor" href="#who-said-python-was-not-setup-for-multicore-computing"><span class="octicon octicon-link"></span></a>Who said Python was not setup for multicore computing?</h4>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>In this package you'll find very simple parallel implementations of list and dict. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.</p>
+
+<h4>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h4>
+
+<p><code>pip install python-parallel-collections</code>
+<code>from parallel.parallel_collections import ParallelList, ParallelDict</code></p>
+
+<h4>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h4>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_list</span> <span class="o">=</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span>
+<span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_list</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">double</span><span class="p">)</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double</span><span class="p">)</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+</pre></div>
+
+<p>As you see every method call returns a new collection, instead of changing the current one.
+The exception is the foreach method, which is equivalent to map but instead of returning a new collection it operates directly on the 
+current one and returns <code>None</code>.  </p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">flat_list</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_list</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">double</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_list</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+</pre></div>
+
+<p>Since every operation (except foreach) returns a collection, these can be chained.</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> <span class="s">'10'</span><span class="p">,</span> <span class="s">'12'</span><span class="p">]</span>
+</pre></div>
+
+<h4>
+<a name="regarding-lambdas-and-closures" class="anchor" href="#regarding-lambdas-and-closures"><span class="octicon octicon-link"></span></a>Regarding lambdas and closures</h4>
+
+<p>Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a <code>__call__</code> method defined.</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">multiply</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<span class="o">...</span>         <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">factor</span>
+<span class="o">...</span>     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>         <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">)(</span><span class="mi">3</span><span class="p">)</span>
+<span class="mi">6</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+</pre></div>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="quick-example-of-flatmap-and-filter-for-both-collections" class="anchor" href="#quick-example-of-flatmap-and-filter-for-both-collections"><span class="octicon octicon-link"></span></a>Quick example of flatmap and filter for both collections</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<h4>
+<a name="flatmap" class="anchor" href="#flatmap"><span class="octicon octicon-link"></span></a>FlatMap</h4>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<p>Functions passed to the flatmap method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span><span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>    <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> <span class="s">'10'</span><span class="p">,</span> <span class="s">'12'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">double_dict</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">item</span>
+<span class="o">...</span>     <span class="k">try</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">return</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]]</span>
+<span class="o">...</span>     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">return</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="n">ParallelDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="p">[[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span>
+<span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_mapped</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double_dict</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">flat_mapped</span>
+<span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">]}</span>
+</pre></div>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<h4>
+<a name="reduce" class="anchor" href="#reduce"><span class="octicon octicon-link"></span></a>Reduce</h4>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>Note at this point reduce is not performed in parallel.
+Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer</p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">group_letters</span><span class="p">(</span><span class="nb">all</span><span class="p">,</span> <span class="n">letter</span><span class="p">):</span>
+<span class="o">...</span>     <span class="nb">all</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="nb">all</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">reduced</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">reduced</span>
+<span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">],</span> <span class="s">'b'</span><span class="p">:</span> <span class="p">[</span><span class="s">'b'</span><span class="p">]}</span>
+</pre></div>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<h4>
+<a name="filter" class="anchor" href="#filter"><span class="octicon octicon-link"></span></a>Filter</h4>
+
+<p>The Filter method should be passed a predicate, which means a function that will return True or False and will be called once for every element in the list and for every (key, values) in a dict.</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">is_digit</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span><span class="s">'2'</span><span class="p">,</span><span class="s">'3'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">is_digit</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">filtered</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">filtered</span>
+<span class="p">[</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">]</span>
+
+<span class="o">&gt;&gt;&gt;</span><span class="k">def</span> <span class="nf">is_digit_dict</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>    <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,]))</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span>
+<span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s">'a'</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'3'</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">pred</span> <span class="o">=</span> <span class="n">is_digit_dict</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span>
+<span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'3'</span><span class="p">}</span>
+</pre></div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/gterzian">gterzian</a></p>

@@ -103,13 +103,4 @@ class ParallelDict(UserDict, ParallelSeq):
         return ParallelDict(self.pool.map(func, data, ))
         
     def reduce(self, function, initializer=None):
-        it = iter(self)
-        if initializer is None:
-            try:
-                initializer = next(it)
-            except StopIteration:
-                raise TypeError('reduce() of empty sequence with no initial value')
-        accum_value = initializer
-        for x in it:
-            accum_value = function(accum_value, x)
-        return accum_value
+        return reduce(function, self, initializer)

@@ -57,9 +57,10 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 ```
 
 ###Quick example of flatmap and filter for both collections
-Functions passed to the methods of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence.
 
 ####FlatMap
+
+Functions passed to the flatmap method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence.
  
 ```python
 >>>def double(item):
@@ -84,6 +85,7 @@ Functions passed to the methods of a list will be passed every element in the li
 ```
 
 ####Filter
+The Filter method should be passed a predicate, which means a function that will return True or False and will be called once for every element in the list and for every (key, values) in a dict.
 ```python
 >>> def is_digit(item):
 ...     return item.isdigit()

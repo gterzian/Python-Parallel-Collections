@@ -60,6 +60,9 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 
 ####FlatMap
 ```python
+>>>def double(item):
+...    return item * 2
+...
 >>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']

@@ -91,11 +91,11 @@ class ParallelDict(UserDict, ParallelSeq):
         
     def flatten(self):
         flat = []
-        for i in self:
+        for k,v in self:
             try:
-                flat.append((i[0],list(chain(*i[1]))))
+                flat.append((k,list(chain(*v))))
             except TypeError:
-                flat.append((i[0], i[1]))
+                flat.append((k, v))
         return ParallelDict(flat)
         
     def flatmap(self, func):

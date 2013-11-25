@@ -52,18 +52,18 @@ class TestDict(unittest.TestCase):
         self.assertEqual(d.flatten(), ParallelDict(zip(range(2), [[1,2,3,4],[3,4]])))
     
     def test_foreach(self):
-        d = ParallelDict(zip([i for i in range(10)], range(10)))
+        d = ParallelDict(zip(range(10), range(10)))
         self.assertEquals(d.foreach(double_dict), ParallelDict(zip(range(10), (double(i) for i in range(10)))))
         self.assertTrue(d.foreach(double_dict) is d)
         
     def test_map(self):
-        d = ParallelDict(zip([i for i in range(10)], range(10)))
+        d = ParallelDict(zip(range(10), range(10)))
         mapped = d.map(double_dict)
         self.assertEquals(mapped, ParallelDict(zip(range(10), (double(i) for i in range(10)))))
         self.assertFalse(mapped is d)
         
     def test_filter(self):
-        p = ParallelDict(zip([i for i in range(3)], ['a','2', '3',]))
+        p = ParallelDict(zip(range(3), ['a','2', '3',]))
         pred = is_digit_dict
         self.assertEquals(p.filter(pred),  ParallelDict(zip([1,2,], ['2', '3'])))
         self.assertFalse(p.filter(pred) is p)

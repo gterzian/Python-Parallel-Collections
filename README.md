@@ -10,7 +10,7 @@ In this package you'll find very simple parallel implementations of list and dic
 assuming a function called double that doubles a number passed to it:
 
 ```python
-list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 flat_list = list_of_list.flatten()
 [1, 2, 3, 4, 5, 6]
 list_of_list

@@ -13,7 +13,7 @@ class TestList(unittest.TestCase):
     
     def test_foreach(self):
         p = ParallelList([range(10),range(10)])
-        self.assertEquals(list(p.foreach(double)), map(double, [range(10),range(10)]))
+        self.assertEquals(p.foreach(double), map(double, [range(10),range(10)]))
         self.assertTrue(p.foreach(double) is p)
         
     def test_map(self):
@@ -37,7 +37,6 @@ class TestList(unittest.TestCase):
     def test_chaining(self):
         p = ParallelList([range(10),range(10)])
         self.assertEquals(p.flatten().map(double), p.flatmap(double))
-        
     
     def test_reduce(self):
         p = ParallelList(['a', 'a', 'b'])
@@ -54,13 +53,13 @@ class TestDict(unittest.TestCase):
     
     def test_foreach(self):
         d = ParallelDict(zip([i for i in range(10)], range(10)))
-        self.assertEquals(d.foreach(double_dict), ParallelDict(zip((double(i) for i in range(10)), (double(i) for i in range(10)))))
+        self.assertEquals(d.foreach(double_dict), ParallelDict(zip(range(10), (double(i) for i in range(10)))))
         self.assertTrue(d.foreach(double_dict) is d)
         
     def test_map(self):
         d = ParallelDict(zip([i for i in range(10)], range(10)))
         mapped = d.map(double_dict)
-        self.assertEquals(mapped, ParallelDict(zip((double(i) for i in range(10)), (double(i) for i in range(10)))))
+        self.assertEquals(mapped, ParallelDict(zip(range(10), (double(i) for i in range(10)))))
         self.assertFalse(mapped is d)
         
     def test_filter(self):
@@ -68,6 +67,23 @@ class TestDict(unittest.TestCase):
         pred = is_digit_dict
         self.assertEquals(p.filter(pred),  ParallelDict(zip([1,2,], ['2', '3'])))
         self.assertFalse(p.filter(pred) is p)
+        
+    def test_flatmap(self):
+        d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
+        flat_mapped = d.flatmap(double_dict)
+        self.assertEquals(flat_mapped, ParallelDict(zip(range(2), [[2,4,6,8],[6,8]])))
+        self.assertFalse(flat_mapped is d)
+    
+    def test_chaining(self):
+        d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
+        self.assertEquals(d.flatten().map(double_dict), d.flatmap(double_dict))
+        
+    def test_reduce(self):
+        d = ParallelDict(zip(range(3),['a', 'a', 'b']))
+        reduced = d.reduce(group_letters_dict, defaultdict(list))
+        self.assertEquals(dict(a=['a','a'], b=['b',]), reduced)
+        self.assertFalse(reduced is d)
+        
         
    
 
@@ -84,11 +100,20 @@ def group_letters(all, letter):
     all[letter].append(letter)
     return all
 
+def group_letters_dict(all, letter):
+    letter = letter[1]
+    all[letter].append(letter)
+    return all
+
 def double(item):
     return item * 2 
     
 def double_dict(item):
-    return [i * 2 for i in item]
+    k,v = item
+    try:
+        return [k, [i *2 for i in v]]
+    except TypeError:
+        return [k, v * 2]
 
 if __name__ == '__main__':
     unittest.main()

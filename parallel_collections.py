@@ -40,7 +40,6 @@ class ParallelSeq(object):
 class ParallelList(UserList, ParallelSeq):
     
     def __init__(self, *args, **kwargs):
-        self._chunksize = None
         self.pool = Pool
         super(ParallelList, self).__init__(*args, **kwargs)
         
@@ -72,7 +71,6 @@ class ParallelList(UserList, ParallelSeq):
 class ParallelDict(UserDict, ParallelSeq):
     
     def __init__(self, *args, **kwargs):
-        self._chunksize = None
         self.pool = Pool
         super(ParallelDict, self).__init__(*args, **kwargs)
         

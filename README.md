@@ -3,6 +3,7 @@
 
 ####Who said Python was not setup for multicore computing? 
 In this package you'll find very simple parallel implementations of list and dict. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
 
 
 ####Examples
@@ -34,7 +35,7 @@ None
 [2, 4, 6, 8, 10, 12]
 ```
 
-Since every operation returns a collection, these can be chained.
+Since every operation (except foreach) returns a collection, these can be chained.
 ```python
 >>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(double).map(str)

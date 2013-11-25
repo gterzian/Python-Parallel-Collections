@@ -7,6 +7,8 @@ from UserDict import UserDict
 Pool = futures.ProcessPoolExecutor()
 
 class _Filter(object):
+    '''Helper for the filter methods, 
+    need to use class as closures cannot be pickled and sent to other processes'''
     
     def __init__(self, pred):
         self.pred = pred
@@ -19,15 +21,19 @@ class _Filter(object):
 class ParallelSeq(object):
         
     def foreach(self, func):
+        '''operates the func on every item the internal data, returns the same collection'''
         raise(NotImplemented)
     
     def filter(self, pred):
+        '''will filter the internal data with the predicate, returns a new collection'''
         raise(NotImplemented)
         
     def map(self, func):
+        '''operates the func on every item the internal data, returns a new collection'''
         raise(NotImplemented)
         
     def flatten(self):
+        '''this will differ based on the underlying data struct'''
         raise(NotImplemented)
         
     def flatmap(self, func):
@@ -58,6 +64,7 @@ class ParallelList(UserList, ParallelSeq):
         return ParallelList(self.pool.map(func, self, ))
         
     def flatten(self):
+        '''if the list consists of several sequences, those will be chained in one'''
         return ParallelList(chain(*self))
         
     def flatmap(self, func):
@@ -90,6 +97,7 @@ class ParallelDict(UserDict, ParallelSeq):
         return ParallelDict(self.pool.map(func, self, ))
         
     def flatten(self):
+        '''if the values of the dict consists of several sequences, those will be chained in one'''
         flat = []
         for k,v in self:
             try:

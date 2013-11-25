@@ -22,9 +22,9 @@ In this package you'll find very simple parallel implementations of list and dic
 [2, 4, 6, 8, 10, 12]
 ```
 
-As you see every method call returns a new collection. Flatmap is the equivalent of flattening and then mapping. 
+As you see every method call returns a new collection, instead of changing the current one.
 The exception is the foreach method, which is equivalent to map but instead of returning a new collection it operates directly on the 
-current one and returns it. 
+current one and returns it.  
 ```python
 >>> flat_list
 [1, 2, 3, 4, 5, 6]
@@ -43,7 +43,7 @@ Since every operation returns a collection, these can be chained.
 ['2', '4', '6', '8', '10', '12']
 ```
 
-Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a __call__ method defined.
+Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a `__call__` method defined.
 ```python
 >>> class multiply(object):
 ...     def __init__(self, factor):

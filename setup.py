@@ -9,8 +9,8 @@ setup(
     description='parallel implementations of collections with support for map/reduce style operations',
     long_description='''In this package you'll find very simple parallel implementations of list and dict. 
     The parallelism is achieved using the Python 2.7 backport of the concurrent.futures package.
-    If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
-    Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
+    If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+    Otherwise these datastructures are equivalent to their non-parallel peers found in the standard library.
     http://gterzian.github.io/Python-Parallel-Collections/''',
     author='Gregory Terzian',
     author_email='gregory.terzian@gmail.com',
@@ -22,5 +22,6 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Topic :: System :: Distributed Computing',
     ],
 )

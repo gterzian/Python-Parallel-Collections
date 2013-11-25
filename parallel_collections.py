@@ -6,7 +6,7 @@ from UserDict import UserDict
 
 Pool = futures.ProcessPoolExecutor()
 
-class Filter(object):
+class _Filter(object):
     
     def __init__(self, pred):
         self.pred = pred
@@ -51,7 +51,7 @@ class ParallelList(UserList, ParallelSeq):
         return self
     
     def filter(self, pred):
-        _filter = Filter(pred)
+        _filter = _Filter(pred)
         return ParallelList(i for i in self.pool.map(_filter, self, ) if i)
         
     def map(self, func):
@@ -83,7 +83,7 @@ class ParallelDict(UserDict, ParallelSeq):
         return self
     
     def filter(self, pred):
-        _filter = Filter(pred)
+        _filter = _Filter(pred)
         return ParallelDict(i for i in self.pool.map(_filter, self, ) if i)
         
     def map(self, func):

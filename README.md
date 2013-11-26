@@ -7,6 +7,7 @@ Otherwise these datastructures are equivalent to the non-parallel ones found in 
 
 ####Getting Started
 `pip install python-parallel-collections`
+`pip install futures`
 `from parallel.parallel_collections import ParallelList, ParallelDict`
 
 

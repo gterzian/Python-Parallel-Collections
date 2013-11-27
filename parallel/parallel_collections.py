@@ -85,8 +85,6 @@ class ParallelList(UserList, ParallelSeq):
         return ParallelList(chain(*self))
         
         
-        
-        
 class ParallelDict(UserDict, ParallelSeq):
     
     def __init__(self, *args, **kwargs):

@@ -42,8 +42,8 @@ class ParallelSeq(object):
         raise(NotImplemented)
     
     def filter(self, pred):
-        '''will filter the internal data with the predicate, returns a new collection'''
-        raise(NotImplemented)
+        _filter = _Filter(pred)
+        return self.__class__(i for i in self.pool.map(_filter, self, ) if i)
         
     def map(self, func):
         '''operates the func on every item the internal data, returns a new collection'''
@@ -53,11 +53,18 @@ class ParallelSeq(object):
         '''this will differ based on the underlying data struct'''
         raise(NotImplemented)
         
-    def flatmap(self, func):
-        raise(NotImplemented)
+    def map(self, func):
+        return self.__class__(self.pool.map(func, self, ))
         
-    def reduce(self, function, initializer=None):
-        raise(NotImplemented)
+    def flatmap(self, func):
+        data = self.flatten()
+        return self.__class__(self.pool.map(func, data, ))
+        
+    def reduce(self, function, init=None):
+        _reducer = _Reducer(function, init)
+        for i in self.pool.map(_reducer, self, ):
+            pass
+        return _reducer.result
     
 
 class ParallelList(UserList, ParallelSeq):
@@ -72,27 +79,10 @@ class ParallelList(UserList, ParallelSeq):
     def foreach(self, func):
         self.data = list(self.pool.map(func, self))
         return None
-    
-    def filter(self, pred):
-        _filter = _Filter(pred)
-        return ParallelList(i for i in self.pool.map(_filter, self, ) if i)
-        
-    def map(self, func):
-        return ParallelList(self.pool.map(func, self, ))
         
     def flatten(self):
         '''if the list consists of several sequences, those will be chained in one'''
         return ParallelList(chain(*self))
-        
-    def flatmap(self, func):
-        data = self.flatten()
-        return ParallelList(self.pool.map(func, data, ))
-        
-    def reduce(self, function, init=None):
-        _reducer = _Reducer(function, init)
-        for i in self.pool.map(_reducer, self, ):
-            pass
-        return _reducer.result
         
         
         
@@ -110,13 +100,6 @@ class ParallelDict(UserDict, ParallelSeq):
     def foreach(self, func):
         self.data =  dict(self.pool.map(func, self, ))
         return None
-    
-    def filter(self, pred):
-        _filter = _Filter(pred)
-        return ParallelDict(i for i in self.pool.map(_filter, self, ) if i)
-        
-    def map(self, func):
-        return ParallelDict(self.pool.map(func, self, ))
         
     def flatten(self):
         '''if the values of the dict consists of several sequences, those will be chained in one'''
@@ -128,12 +111,6 @@ class ParallelDict(UserDict, ParallelSeq):
                 flat.append((k, v))
         return ParallelDict(flat)
         
-    def flatmap(self, func):
-        data = self.flatten()
-        return ParallelDict(self.pool.map(func, data, ))
+    
         
-    def reduce(self, function, init=None):
-        _reducer = _Reducer(function, init)
-        for i in self.pool.map(_reducer, self, ):
-            pass
-        return _reducer.result
+    

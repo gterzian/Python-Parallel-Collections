@@ -38,16 +38,12 @@ class _Reducer(object):
 class ParallelSeq(object):
         
     def foreach(self, func):
-        '''operates the func on every item the internal data, returns the same collection'''
-        raise(NotImplemented)
+        self.data = self.__class__(self.pool.map(func, self))
+        return None
     
     def filter(self, pred):
         _filter = _Filter(pred)
         return self.__class__(i for i in self.pool.map(_filter, self, ) if i)
-        
-    def map(self, func):
-        '''operates the func on every item the internal data, returns a new collection'''
-        raise(NotImplemented)
         
     def flatten(self):
         '''this will differ based on the underlying data struct'''
@@ -76,10 +72,6 @@ class ParallelList(UserList, ParallelSeq):
     def __iter__(self):
         return iter(self.data)
         
-    def foreach(self, func):
-        self.data = list(self.pool.map(func, self))
-        return None
-        
     def flatten(self):
         '''if the list consists of several sequences, those will be chained in one'''
         return ParallelList(chain(*self))
@@ -94,11 +86,7 @@ class ParallelDict(UserDict, ParallelSeq):
     def __iter__(self):
         for i in self.data.items():
             yield i
-            
-    def foreach(self, func):
-        self.data =  dict(self.pool.map(func, self, ))
-        return None
-        
+
     def flatten(self):
         '''if the values of the dict consists of several sequences, those will be chained in one'''
         flat = []

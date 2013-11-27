@@ -1,4 +1,5 @@
 from concurrent import futures
+from multiprocessing import Manager
 from itertools import chain, imap
 from UserList import UserList
 from UserDict import UserDict
@@ -16,6 +17,22 @@ class _Filter(object):
     def __call__(self, item):
         if self.pred(item):
             return item
+        
+            
+class _Reducer(object):
+    '''Helper for the reducer methods'''
+    
+    def __init__(self, func, init=None):
+        self.func = func
+        self.q = Manager().list([init,])
+        
+    def __call__(self, item):
+        init = self.func(self.q[0], item)
+        self.q[0] = init
+    
+    @property
+    def result(self):
+        return self.q[0]
 
 
 class ParallelSeq(object):
@@ -71,8 +88,13 @@ class ParallelList(UserList, ParallelSeq):
         data = self.flatten()
         return ParallelList(self.pool.map(func, data, ))
         
-    def reduce(self, function, initializer=None):
-        return reduce(function, self, initializer)
+    def reduce(self, function, init=None):
+        _reducer = _Reducer(function, init)
+        for i in self.pool.map(_reducer, self, ):
+            pass
+        return _reducer.result
+        
+        
         
         
 class ParallelDict(UserDict, ParallelSeq):
@@ -110,5 +132,8 @@ class ParallelDict(UserDict, ParallelSeq):
         data = self.flatten()
         return ParallelDict(self.pool.map(func, data, ))
         
-    def reduce(self, function, initializer=None):
-        return reduce(function, self, initializer)
+    def reduce(self, function, init=None):
+        _reducer = _Reducer(function, init)
+        for i in self.pool.map(_reducer, self, ):
+            pass
+        return _reducer.result

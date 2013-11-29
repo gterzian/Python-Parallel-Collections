@@ -2,7 +2,7 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import ParallelList, ParallelDict
+from parallel_collections import ParallelList, ParallelDict, ParallelString
         
 
 class TestList(unittest.TestCase):
@@ -86,8 +86,52 @@ class TestDict(unittest.TestCase):
         self.assertEquals(dict(a=['a','a'], b=['b',]), reduced)
         self.assertFalse(reduced is d)
         
+
+class TestString(unittest.TestCase):
         
-   
+    def test_flatten(self):
+        p = ParallelString('qwerty')
+        self.assertEquals(p.flatten(), 'qwerty')
+    
+    def test_foreach(self):
+        p = ParallelString('qwerty')
+        p.foreach(to_upper)
+        self.assertEquals(p, ''.join(map(to_upper, 'qwerty')))
+        self.assertEquals(p, 'QWERTY')
+        self.assertTrue(p.foreach(double) is None)
+        
+    def test_map(self):
+        p = ParallelString('qwerty')
+        mapped = p.map(to_upper)
+        self.assertEquals(mapped, ''.join(map(to_upper, 'qwerty')))
+        self.assertFalse(mapped is p)
+    
+    def test_filter(self):
+        p = ParallelString('a23')
+        pred = is_digit
+        filtered = p.filter(pred)
+        self.assertEquals(filtered, '23')
+        self.assertFalse(filtered is p)
+        
+    def test_flatmap(self):
+        p = ParallelString('a23')
+        self.assertEquals(p.flatmap(to_upper), ''.join(map(to_upper, chain(*'a23'))))
+        self.assertFalse(p.flatmap(to_upper) is p)
+    
+    def test_chaining(self):
+        p = ParallelString('a23')
+        self.assertEquals(p.filter(is_digit).map(to_upper), p.filter(is_digit).flatmap(to_upper))
+    
+    def test_reduce(self):
+        p = ParallelString('aab')
+        reduced = p.reduce(group_letters, defaultdict(list))
+        self.assertEquals(dict(a=['a','a'], b=['b',]), reduced)
+        self.assertFalse(reduced is p)
+        
+        
+ 
+def to_upper(item):
+    return item.upper()   
 
 def is_digit(item):
     return item.isdigit()

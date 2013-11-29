@@ -3,6 +3,7 @@ from multiprocessing import Manager
 from itertools import chain, imap
 from UserList import UserList
 from UserDict import UserDict
+from UserString import UserString
 
 
 Pool = futures.ProcessPoolExecutor()
@@ -11,11 +12,11 @@ class _Filter(object):
     '''Helper for the filter methods, 
     need to use class as closures cannot be pickled and sent to other processes'''
     
-    def __init__(self, pred):
-        self.pred = pred
+    def __init__(self, predicate):
+        self.predicate = predicate
         
     def __call__(self, item):
-        if self.pred(item):
+        if self.predicate(item):
             return item
         
             
@@ -24,15 +25,15 @@ class _Reducer(object):
     
     def __init__(self, func, init=None):
         self.func = func
-        self.q = Manager().list([init,])
+        self.list = Manager().list([init,])
         
     def __call__(self, item):
-        init = self.func(self.q[0], item)
-        self.q[0] = init
+        init = self.func(self.list[0], item)
+        self.list[0] = init
     
     @property
     def result(self):
-        return self.q[0]
+        return self.list[0]
 
 
 class ParallelSeq(object):
@@ -46,8 +47,8 @@ class ParallelSeq(object):
         return self.__class__(i for i in self.pool.map(_filter, self, ) if i)
         
     def flatten(self):
-        '''this will differ based on the underlying data struct'''
-        raise(NotImplemented)
+        '''if the list consists of several sequences, those will be chained in one'''
+        return self.__class__(chain(*self))
         
     def map(self, func):
         return self.__class__(self.pool.map(func, self, ))
@@ -72,10 +73,6 @@ class ParallelList(UserList, ParallelSeq):
     def __iter__(self):
         return iter(self.data)
         
-    def flatten(self):
-        '''if the list consists of several sequences, those will be chained in one'''
-        return ParallelList(chain(*self))
-        
         
 class ParallelDict(UserDict, ParallelSeq):
     
@@ -98,5 +95,30 @@ class ParallelDict(UserDict, ParallelSeq):
         return ParallelDict(flat)
         
     
-        
+class ParallelString(UserString, ParallelSeq):
     
+    def __init__(self, *args, **kwargs):
+        self.pool = Pool
+        super(ParallelString, self).__init__(*args, **kwargs)
+        
+    def __iter__(self):
+        return iter(self.data)
+        
+    def foreach(self, func):
+        self.data = self.__class__(''.join(self.pool.map(func, self)))
+        return None
+        
+    def filter(self, pred):
+        _filter = _Filter(pred)
+        data = (i for i in self.pool.map(_filter, self, ) if i)
+        return self.__class__(''.join(data))
+        
+    def map(self, func):
+        data = self.pool.map(func, self)
+        return self.__class__(''.join(data))
+        
+    def flatmap(self, func):
+        return self.map(func)
+        
+    def flatten(self):
+        return self

@@ -4,7 +4,7 @@ import parallel
 setup(
     name='python-parallel-collections',
     data_files=[('', ['requirements.txt', 'README.md', '.gitignore']),],
-    version='0.1.8',
+    version='0.1.9',
     packages=['parallel',],
     description='parallel implementations of collections with support for map/reduce style operations',
     long_description='''

@@ -5,10 +5,13 @@
 In this package you'll find very simple parallel implementations of list and dict. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
 
+Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
+actually work in the interactive interpreter. 
+
 ####Getting Started
 `pip install python-parallel-collections`
 `pip install futures`
-`from parallel.parallel_collections import ParallelList, ParallelDict`
+`from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString`
 
 
 ####Examples
@@ -65,9 +68,9 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 
 ###Quick example of flatmap and filter for both collections
 
-####FlatMap
+####Map and FlatMap
 
-Functions passed to the flatmap method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence.
+Functions passed to the map method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence. Flatmap will first flatten the sequence then apply map to it.
  
 ```python
 >>>def double(item):
@@ -89,6 +92,13 @@ Functions passed to the flatmap method of a list will be passed every element in
 >>> flat_mapped = d.flatmap(double_dict)
 >>> flat_mapped
 {0: [2, 4, 6, 8], 1: [6, 8]}
+
+>>> def to_upper(item):
+...     return item.upper() 
+... 
+>>>p = ParallelString('qwerty')
+>>>mapped = p.map(to_upper)
+'QWERTY'
 ```
 
 ####Reduce
@@ -100,7 +110,9 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 ... 
 >>>p = ParallelList(['a', 'a', 'b'])
 >>>reduced = p.reduce(group_letters, defaultdict(list))
->>>reduced
+{'a': ['a', 'a'], 'b': ['b']}
+>>>p = ParallelString('aab')
+>>>p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
 ```
 
@@ -126,4 +138,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>>filtered = p.filter(pred)
 >>>filtered
 {1: '2', 2: '3'}
+>>>p = ParallelString('a23')
+>>>p.filter(is_digit)
+'23'
 ```

@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<meta name="google-site-verification" content="uJcMgTec74XQuqII6nUY4dDmQ4bc7jO4iuPKJSGL_lY" />
     <title>Python-parallel-collections by gterzian</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
@@ -38,18 +37,18 @@
 <h4>
 <a name="who-said-python-was-not-setup-for-multicore-computing" class="anchor" href="#who-said-python-was-not-setup-for-multicore-computing"><span class="octicon octicon-link"></span></a>Who said Python was not setup for multicore computing?</h4>
 
-<p>In this package you'll find very simple parallel implementations of list and dict. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+<p>In this package you'll find very simple parallel implementations of list, string and dict. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.</p>
-<p>See more on Python and Parallel processing: <a href='https://wiki.python.org/moin/ParallelProcessing'>Python Wiki</a></p>
-<p>Please note although the below examples are written in 'interactive' style, due to the nature of multiprocessing they will not
-	actually work in the interactive interpreter
-</p>
+
+<p>Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
+actually work in the interactive interpreter. </p>
+
 <h4>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h4>
 
-<p><code>pip install python-parallel-collections</code></p>
-<p><code>pip install futures</code></p>
-<p><code>from parallel.parallel_collections import ParallelList, ParallelDict</code></p>
+<p><code>pip install python-parallel-collections</code>
+<code>pip install futures</code>
+<code>from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString</code></p>
 
 <h4>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h4>
@@ -109,9 +108,9 @@ current one and returns <code>None</code>.  </p>
 <a name="quick-example-of-flatmap-and-filter-for-both-collections" class="anchor" href="#quick-example-of-flatmap-and-filter-for-both-collections"><span class="octicon octicon-link"></span></a>Quick example of flatmap and filter for both collections</h3>
 
 <h4>
-<a name="flatmap" class="anchor" href="#flatmap"><span class="octicon octicon-link"></span></a>FlatMap</h4>
+<a name="map-and-flatmap" class="anchor" href="#map-and-flatmap"><span class="octicon octicon-link"></span></a>Map and FlatMap</h4>
 
-<p>Functions passed to the flatmap method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence.</p>
+<p>Functions passed to the map method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence. Flatmap will first flatten the sequence then apply map to it.</p>
 
 <div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span><span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="o">...</span>    <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="mi">2</span>
@@ -132,13 +131,19 @@ current one and returns <code>None</code>.  </p>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">flat_mapped</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double_dict</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">flat_mapped</span>
 <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">]}</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">to_upper</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> 
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'qwerty'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">mapped</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">to_upper</span><span class="p">)</span>
+<span class="s">'QWERTY'</span>
 </pre></div>
 
 <h4>
 <a name="reduce" class="anchor" href="#reduce"><span class="octicon octicon-link"></span></a>Reduce</h4>
 
-<p>
-Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer</p>
+<p>Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer</p>
 
 <div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">group_letters</span><span class="p">(</span><span class="nb">all</span><span class="p">,</span> <span class="n">letter</span><span class="p">):</span>
 <span class="o">...</span>     <span class="nb">all</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span>
@@ -146,7 +151,9 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
 <span class="o">&gt;&gt;&gt;</span><span class="n">reduced</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">reduced</span>
+<span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">],</span> <span class="s">'b'</span><span class="p">:</span> <span class="p">[</span><span class="s">'b'</span><span class="p">]}</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'aab'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
 <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">],</span> <span class="s">'b'</span><span class="p">:</span> <span class="p">[</span><span class="s">'b'</span><span class="p">]}</span>
 </pre></div>
 
@@ -174,22 +181,10 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 <span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span>
 <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'3'</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'a23'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_digit</span><span class="p">)</span>
+<span class="s">'23'</span>
 </pre></div>
-  <p><div id="disqus_thread"></div></p>
-   <script type="text/javascript">
-       /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-       var disqus_shortname = 'djangocookbook'; // required: replace example with your forum shortname
-
-       /* * * DON'T EDIT BELOW THIS LINE * * */
-       (function() {
-           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-           dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-       })();
-   </script>
-   <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-   <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/gterzian">gterzian</a></p>
@@ -207,7 +202,6 @@ Reduce accepts an optional initializer, which will be passed as the first argume
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
-          
-          
+
   </body>
 </html>

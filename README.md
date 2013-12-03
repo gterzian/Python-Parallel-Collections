@@ -66,7 +66,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 [2, 4, 6, 8, 10, 12]
 ```
 
-###Quick example of flatmap and filter for both collections
+###Quick examples of map, reduce and filter
 
 ####Map and FlatMap
 

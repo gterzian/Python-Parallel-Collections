@@ -61,7 +61,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 ... 
 >>> multiply(2)(3)
 6
->>>list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(multiply(2))
 [2, 4, 6, 8, 10, 12]
 ```
@@ -73,7 +73,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 Functions passed to the map method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence. Flatmap will first flatten the sequence then apply map to it.
  
 ```python
->>>def double(item):
+>>> def double(item):
 ...    return item * 2
 ...
 >>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
@@ -96,8 +96,8 @@ Functions passed to the map method of a list will be passed every element in the
 >>> def to_upper(item):
 ...     return item.upper() 
 ... 
->>>p = ParallelString('qwerty')
->>>mapped = p.map(to_upper)
+>>> p = ParallelString('qwerty')
+>>> mapped = p.map(to_upper)
 'QWERTY'
 ```
 
@@ -108,11 +108,11 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 ...     all[letter].append(letter)
 ...     return all
 ... 
->>>p = ParallelList(['a', 'a', 'b'])
->>>reduced = p.reduce(group_letters, defaultdict(list))
+>>> p = ParallelList(['a', 'a', 'b'])
+>>> reduced = p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
->>>p = ParallelString('aab')
->>>p.reduce(group_letters, defaultdict(list))
+>>> p = ParallelString('aab')
+>>> p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
 ```
 
@@ -128,17 +128,16 @@ The Filter method should be passed a predicate, which means a function that will
 >>> filtered
 ['2', '3']
 
->>>def is_digit_dict(item):
+>>> def is_digit_dict(item):
 ...    return item[1].isdigit()
 ...
->>>p = ParallelDict(zip(range(3), ['a','2', '3',]))
->>>p
+>>> p = ParallelDict(zip(range(3), ['a','2', '3',]))
 {0: 'a', 1: '2', 2: '3'}
->>>pred = is_digit_dict
->>>filtered = p.filter(pred)
->>>filtered
+>>> pred = is_digit_dict
+>>> filtered = p.filter(pred)
+>>> filtered
 {1: '2', 2: '3'}
->>>p = ParallelString('a23')
->>>p.filter(is_digit)
+>>> p = ParallelString('a23')
+>>> p.filter(is_digit)
 '23'
 ```

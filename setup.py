@@ -4,11 +4,11 @@ import parallel
 setup(
     name='python-parallel-collections',
     data_files=[('', ['requirements.txt', 'README.md', '.gitignore']),],
-    version='0.1.9.2',
+    version='0.1.9.3',
     packages=['parallel',],
     description='parallel implementations of collections with support for map/reduce style operations',
     long_description='''
-    New in 1.9: parallel strings!
+    New in 1.9: parallel strings and a parallel generator! 
     
     In this package you'll find very simple parallel implementations of list and dict. 
     The parallelism is achieved using the Python 2.7 backport of the concurrent.futures package.

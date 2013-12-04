@@ -2,7 +2,7 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import ParallelList, ParallelDict, ParallelString
+from parallel_collections import ParallelList, ParallelDict, ParallelString, ParallelGen
         
 
 class TestList(unittest.TestCase):
@@ -43,6 +43,47 @@ class TestList(unittest.TestCase):
         p = ParallelList(['a', 'a', 'b'])
         reduced = p.reduce(group_letters, defaultdict(list))
         self.assertEquals(dict(a=['a','a'], b=['b',]), reduced)
+        self.assertFalse(reduced is p)
+
+
+class TestGen(unittest.TestCase):
+        
+    def test_flatten(self):
+        p = ParallelGen([range(10),range(10)])
+        self.assertEquals(list(p.flatten()), list(chain(*[range(10),range(10)])))
+    
+    def test_foreach(self):
+        p = ParallelGen([range(10),range(10)])
+        p.foreach(double)
+        self.assertEquals(list(p), map(double, [range(10),range(10)]))
+        self.assertTrue(p.foreach(double) is None)
+        
+    def test_map(self):
+        p = ParallelGen([range(10),range(10)])
+        mapped = p.map(double)
+        self.assertEquals(list(mapped), map(double, [range(10),range(10)]))
+        self.assertFalse(mapped is p)
+    
+    def test_filter(self):
+        p = ParallelGen(['a','2','3'])
+        pred = is_digit
+        filtered = p.filter(pred)
+        self.assertEquals(list(filtered), list(['2','3']))
+        self.assertFalse(filtered is p)
+        
+    def test_flatmap(self):
+        p = ParallelGen([range(10),range(10)])
+        self.assertEquals(list(p.flatmap(double)), map(double, chain(*[range(10),range(10)])))
+        self.assertFalse(p.flatmap(double) is p)
+    
+    def test_chaining(self):
+        p = ParallelGen([range(10),range(10)])
+        self.assertEquals(list(p.flatten().map(double)), list(p.flatmap(double)))
+    
+    def test_reduce(self):
+        p = ParallelGen(['a', 'a', 'b'])
+        reduced = p.reduce(group_letters, defaultdict(list))
+        self.assertEquals(dict(a=['a','a'], b=['b',]), dict(reduced))
         self.assertFalse(reduced is p)
         
         

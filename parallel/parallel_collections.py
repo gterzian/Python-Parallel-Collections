@@ -1,6 +1,6 @@
 from concurrent import futures
 from multiprocessing import Manager
-from itertools import chain, imap
+from itertools import chain, imap, izip
 from UserList import UserList
 from UserDict import UserDict
 from UserString import UserString
@@ -63,7 +63,50 @@ class ParallelSeq(object):
             #need to consume the generator returned by pool.map
             pass
         return _reducer.result
+        
+
+class ParallelGen(ParallelSeq):
     
+    def __init__(self, data_source):
+        self.data = data_source
+        self.pool = Pool
+    
+    def __iter__(self):
+        for item in self.data:
+            yield item
+            
+    def _map(self, fn, *iterables):
+        '''using our own internal map function to avoid evaluation of the generator as done in pool.map'''
+        fs = (self.pool.submit(fn, *args) for args in izip(*iterables))
+        for future in fs:
+            yield future.result()
+       
+    def foreach(self, func):
+        self.data = [i for i in self._map(func, self)]
+        return None
+        
+    def filter(self, pred):
+        _filter = _Filter(pred)
+        return self.__class__(i for i in self._map(_filter, self, ) if i)
+        
+    def flatten(self):
+        '''if the list consists of several sequences, those will be chained in one'''
+        return self.__class__(chain(*self))
+        
+    def map(self, func):
+        return self.__class__(self._map(func, self, ))
+        
+    def flatmap(self, func):
+        data = self.flatten()
+        return self.__class__(self._map(func, data, ))
+        
+    def reduce(self, function, init=None):
+        _reducer = _Reducer(function, init)
+        for i in self._map(_reducer, self, ):
+            #need to consume the generator returned by _map
+            pass
+        return _reducer.result
+        
 
 class ParallelList(UserList, ParallelSeq):
     

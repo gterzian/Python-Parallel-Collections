@@ -37,7 +37,7 @@
 <h4>
 <a name="who-said-python-was-not-setup-for-multicore-computing" class="anchor" href="#who-said-python-was-not-setup-for-multicore-computing"><span class="octicon octicon-link"></span></a>Who said Python was not setup for multicore computing?</h4>
 
-<p>In this package you'll find very simple parallel implementations of list, string and dict. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+<p>In this package you'll find very simple parallel implementations of list, string and dict and a list-like generator. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.</p>
 
 <p>Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
@@ -49,6 +49,11 @@ actually work in the interactive interpreter. </p>
 <p><code>pip install python-parallel-collections</code>
 <code>pip install futures</code>
 <code>from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString</code></p>
+
+<h4>
+<a name="which-datastructure-to-use-for-the-job" class="anchor" href="#which-datastructure-to-use-for-the-job"><span class="octicon octicon-link"></span></a>Which datastructure to use for the job?</h4>
+
+<p>The parallel implementations of list, string and dict behave similarly to the built-ins. The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the construction of a intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without creating new internal datastructure, just like you would when building data processing pipelines using a chain of generator functions. </p>
 
 <h4>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h4>
@@ -99,20 +104,20 @@ current one and returns <code>None</code>.  </p>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">)(</span><span class="mi">3</span><span class="p">)</span>
 <span class="mi">6</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
 </pre></div>
 
 <h3>
-<a name="quick-example-of-flatmap-and-filter-for-both-collections" class="anchor" href="#quick-example-of-flatmap-and-filter-for-both-collections"><span class="octicon octicon-link"></span></a>Quick example of flatmap and filter for both collections</h3>
+<a name="quick-examples-of-map-reduce-and-filter" class="anchor" href="#quick-examples-of-map-reduce-and-filter"><span class="octicon octicon-link"></span></a>Quick examples of map, reduce and filter</h3>
 
 <h4>
 <a name="map-and-flatmap" class="anchor" href="#map-and-flatmap"><span class="octicon octicon-link"></span></a>Map and FlatMap</h4>
 
 <p>Functions passed to the map method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence. Flatmap will first flatten the sequence then apply map to it.</p>
 
-<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span><span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="o">...</span>    <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="mi">2</span>
 <span class="o">...</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
@@ -135,8 +140,8 @@ current one and returns <code>None</code>.  </p>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">to_upper</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> 
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'qwerty'</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">mapped</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">to_upper</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'qwerty'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mapped</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">to_upper</span><span class="p">)</span>
 <span class="s">'QWERTY'</span>
 </pre></div>
 
@@ -149,11 +154,11 @@ current one and returns <code>None</code>.  </p>
 <span class="o">...</span>     <span class="nb">all</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="nb">all</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">reduced</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">reduced</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
 <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">],</span> <span class="s">'b'</span><span class="p">:</span> <span class="p">[</span><span class="s">'b'</span><span class="p">]}</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'aab'</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'aab'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">group_letters</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
 <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">],</span> <span class="s">'b'</span><span class="p">:</span> <span class="p">[</span><span class="s">'b'</span><span class="p">]}</span>
 </pre></div>
 
@@ -171,32 +176,19 @@ current one and returns <code>None</code>.  </p>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">filtered</span>
 <span class="p">[</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">]</span>
 
-<span class="o">&gt;&gt;&gt;</span><span class="k">def</span> <span class="nf">is_digit_dict</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">is_digit_dict</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="o">...</span>    <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
 <span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,]))</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,]))</span>
 <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s">'a'</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'3'</span><span class="p">}</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">pred</span> <span class="o">=</span> <span class="n">is_digit_dict</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">filtered</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">is_digit_dict</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">filtered</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">filtered</span>
 <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'3'</span><span class="p">}</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'a23'</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span><span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_digit</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ParallelString</span><span class="p">(</span><span class="s">'a23'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_digit</span><span class="p">)</span>
 <span class="s">'23'</span>
 </pre></div>
-<p><div id="disqus_thread"></div></p>
-   <script type="text/javascript">
-       /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-       var disqus_shortname = 'djangocookbook'; // required: replace example with your forum shortname
-
-       /* * * DON'T EDIT BELOW THIS LINE * * */
-       (function() {
-           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-           dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-       })();
-   </script>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/gterzian">gterzian</a></p>

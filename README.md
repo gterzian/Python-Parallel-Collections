@@ -2,7 +2,7 @@
 ####Implementations of dict and list which support parallel map/reduce style operations
 
 ####Who said Python was not setup for multicore computing? 
-In this package you'll find very simple parallel implementations of list, string and dict. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+In this package you'll find very simple parallel implementations of list, string and dict and a list-like generator. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
 
 Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
@@ -12,6 +12,10 @@ actually work in the interactive interpreter.
 `pip install python-parallel-collections`
 `pip install futures`
 `from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString`
+
+
+####Which datastructure to use for the job?
+The parallel implementations of list, string and dict behave similarly to the built-ins. The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the construction of a intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without creating new internal datastructure, just like you would when building data processing pipelines using a chain of generator functions. 
 
 
 ####Examples

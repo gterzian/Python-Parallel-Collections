@@ -90,7 +90,7 @@ class ParallelGen(ParallelSeq):
         return self.__class__(i for i in self._map(_filter, self, ) if i)
         
     def flatten(self):
-        '''if the list consists of several sequences, those will be chained in one'''
+        '''if the data source consists of several sequences, those will be chained in one'''
         return self.__class__(chain(*self))
         
     def map(self, func):

@@ -53,6 +53,7 @@ Since every operation (except foreach) returns a collection, these can be chaine
 
 ####When to use the ParallelGen class?
 The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the evaluation of an intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without evaluating the entire datastructure on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure will be processed one by one. The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
+Also note the the generator will not result in anything happening unless you actually do something to evaluate, such as the list comprehension does in the below example. (a call to len for example would also result in the evaluation of the generator)
 
 ```python
 >>> def _print(item):

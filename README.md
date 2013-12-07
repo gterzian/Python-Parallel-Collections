@@ -9,10 +9,11 @@ Please note that although the below examples are written in interactive style, d
 actually work in the interactive interpreter. 
 
 ####Getting Started
-`pip install python-parallel-collections`
-`pip install futures`
-`from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString`
-
+```python
+pip install python-parallel-collections
+pip install futures
+from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString
+```
 
 ####Examples
 

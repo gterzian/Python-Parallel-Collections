@@ -14,10 +14,6 @@ actually work in the interactive interpreter.
 `from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString`
 
 
-####Which datastructure to use for the job?
-The parallel implementations of list, string and dict behave similarly to the built-ins. The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the construction of a intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without creating new internal datastructure, just like you would when building data processing pipelines using a chain of generator functions. 
-
-
 ####Examples
 
 ```python
@@ -52,6 +48,43 @@ Since every operation (except foreach) returns a collection, these can be chaine
 >>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']
+```
+
+####When to use the ParallelGen class?
+The parallel implementations of list, string and dict behave similarly to the built-ins. The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the evaluation of a intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without evaluating the entire datastructure, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure will be processed one by one. The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator lets every element go through each step before sending the next one in. 
+
+```python
+>>> pgen = ParallelGen(range(5))
+>>> plist = ParallelList(range(5))
+>>> def _print(item):
+...     print item 
+...     return item
+... 
+>>> def double(item):
+...     return item * 2 
+... 
+>>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
+0
+0
+2
+4
+4
+8
+6
+12
+8
+16
+>>> [i for i in plist.map(double).map(_print).map(double).map(_print)]
+0
+2
+4
+6
+8
+0
+4
+8
+12
+16
 ```
 
 ####Regarding lambdas and closures

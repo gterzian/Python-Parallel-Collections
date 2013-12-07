@@ -12,7 +12,7 @@ actually work in the interactive interpreter.
 ```python
 pip install python-parallel-collections
 pip install futures
-from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString
+from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString, ParellelGen
 ```
 
 ####Examples

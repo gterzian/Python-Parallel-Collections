@@ -169,7 +169,10 @@ class TestString(unittest.TestCase):
         self.assertEquals(dict(a=['a','a'], b=['b',]), reduced)
         self.assertFalse(reduced is p)
         
-        
+
+def _print(item):
+    print item 
+    return item       
  
 def to_upper(item):
     return item.upper()   

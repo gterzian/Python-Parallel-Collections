@@ -55,8 +55,6 @@ Since every operation (except foreach) returns a collection, these can be chaine
 The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the evaluation of an intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without evaluating the entire datastructure on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure will be processed one by one. The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
 
 ```python
->>> pgen = ParallelGen(range(5))
->>> plist = ParallelList(range(5))
 >>> def _print(item):
 ...     print item 
 ...     return item
@@ -64,17 +62,7 @@ The ParallelGen class should be used in the same cases that you would normally u
 >>> def double(item):
 ...     return item * 2 
 ... 
->>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
-0
-0
-2
-4
-4
-8
-6
-12
-8
-16
+>>> plist = ParallelList(range(5))
 >>> [i for i in plist.map(double).map(_print).map(double).map(_print)]
 0
 2
@@ -85,6 +73,18 @@ The ParallelGen class should be used in the same cases that you would normally u
 4
 8
 12
+16
+>>> pgen = ParallelGen(range(5))
+>>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
+0
+0
+2
+4
+4
+8
+6
+12
+8
 16
 ```
 

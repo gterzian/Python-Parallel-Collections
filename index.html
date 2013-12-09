@@ -37,23 +37,21 @@
 <h4>
 <a name="who-said-python-was-not-setup-for-multicore-computing" class="anchor" href="#who-said-python-was-not-setup-for-multicore-computing"><span class="octicon octicon-link"></span></a>Who said Python was not setup for multicore computing?</h4>
 
-<p>In this package you'll find very simple parallel implementations of list, string and dict and a list-like generator. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+<p>In this package you'll find very simple parallel implementations of list, string and dict and a generator. The parallelism uses the <a href="http://pythonhosted.org/futures/#processpoolexecutor-example">Python 2.7 backport</a> of the <a href="http://docs.python.org/dev/library/concurrent.futures.html">concurrent.futures</a> package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.</p>
 
-<p>Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
+<p>Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
 actually work in the interactive interpreter. </p>
 
 <h4>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h4>
 
-<p><code>pip install python-parallel-collections</code>
-<code>pip install futures</code>
-<code>from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString</code></p>
+<div class="highlight highlight-python"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">parallel</span><span class="o">-</span><span class="n">collections</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">futures</span>
+</pre></div>
 
-<h4>
-<a name="which-datastructure-to-use-for-the-job" class="anchor" href="#which-datastructure-to-use-for-the-job"><span class="octicon octicon-link"></span></a>Which datastructure to use for the job?</h4>
-
-<p>The parallel implementations of list, string and dict behave similarly to the built-ins. The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the construction of a intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without creating new internal datastructure, just like you would when building data processing pipelines using a chain of generator functions. </p>
+<div class="highlight highlight-python"><pre><span class="kn">from</span> <span class="nn">parallel.parallel_collections</span> <span class="kn">import</span> <span class="n">ParallelList</span><span class="p">,</span> <span class="n">ParallelDict</span><span class="p">,</span> <span class="n">ParallelString</span><span class="p">,</span> <span class="n">ParellelGen</span>
+</pre></div>
 
 <h4>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h4>
@@ -89,6 +87,47 @@ current one and returns <code>None</code>.  </p>
 <div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span> <span class="o">=</span>  <span class="n">ParallelList</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_list</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 <span class="p">[</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> <span class="s">'10'</span><span class="p">,</span> <span class="s">'12'</span><span class="p">]</span>
+</pre></div>
+
+<h4>
+<a name="when-to-use-the-parallelgen-class" class="anchor" href="#when-to-use-the-parallelgen-class"><span class="octicon octicon-link"></span></a>When to use the ParallelGen class?</h4>
+
+<p>The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the evaluation of an intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without evaluating the entire datastructure on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure will be processed one by one. This is a great way to save memory and work with potentially large or infinite streams of data. </p>
+
+<p>The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
+Also note the the generator will not result in anything happening unless you actually do something to evaluate it (such as the list comprehension does in the below example). </p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">_print</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">print</span> <span class="n">item</span> 
+<span class="o">...</span>     <span class="k">return</span> <span class="n">item</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="mi">2</span> 
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">plist</span> <span class="o">=</span> <span class="n">ParallelList</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">plist</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_print</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_print</span><span class="p">)]</span>
+<span class="mi">0</span>
+<span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">6</span>
+<span class="mi">8</span>
+<span class="mi">0</span>
+<span class="mi">4</span>
+<span class="mi">8</span>
+<span class="mi">12</span>
+<span class="mi">16</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pgen</span> <span class="o">=</span> <span class="n">ParallelGen</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pgen</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_print</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_print</span><span class="p">)]</span>
+<span class="mi">0</span>
+<span class="mi">0</span>
+<span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">4</span>
+<span class="mi">8</span>
+<span class="mi">6</span>
+<span class="mi">12</span>
+<span class="mi">8</span>
+<span class="mi">16</span>
 </pre></div>
 
 <h4>

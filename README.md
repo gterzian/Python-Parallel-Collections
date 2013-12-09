@@ -2,10 +2,10 @@
 ####Implementations of dict and list which support parallel map/reduce style operations
 
 ####Who said Python was not setup for multicore computing? 
-In this package you'll find very simple parallel implementations of list, string and dict and a list-like generator. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter/flatten operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+In this package you'll find very simple parallel implementations of list, string and dict and a generator. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
 
-Please note that although the below examples are written in interactive style, due to the nature of multiple processes they will not 
+Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
 actually work in the interactive interpreter. 
 
 ####Getting Started

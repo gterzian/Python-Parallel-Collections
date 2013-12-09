@@ -12,6 +12,8 @@ actually work in the interactive interpreter.
 ```python
 pip install python-parallel-collections
 pip install futures
+```
+```python
 from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString, ParellelGen
 ```
 

@@ -192,7 +192,7 @@ Functions passed to the map method of a list will be passed every element in the
 >>> def to_upper(item):
 ...     return item.upper() 
 ... 
->>> p = ParallelString('qwerty')
+>>> p = parallel('qwerty')
 >>> mapped = p.map(to_upper)
 'QWERTY'
 ```
@@ -207,7 +207,7 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 >>> p = parallel(['a', 'a', 'b'])
 >>> reduced = p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
->>> p = ParallelString('aab')
+>>> p = parallel('aab')
 >>> p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
 ```
@@ -233,7 +233,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> filtered = p.filter(pred)
 >>> filtered
 {1: '2', 2: '3'}
->>> p = ParallelString('a23')
+>>> p = parallel('a23')
 >>> p.filter(is_digit)
 '23'
 ```

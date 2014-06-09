@@ -5,7 +5,7 @@
 In this package you'll find a convenient interface to map/reduce/filter style operations that can be performed on standard Python data structures and generators using multiple processes. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 
 Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
-actually work in the interactive interpreter. Ver
+actually work in the interactive interpreter.
 
 
 ####Changes in 0.2

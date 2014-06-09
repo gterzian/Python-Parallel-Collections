@@ -16,13 +16,11 @@ One API change to note:
 Where previously one would do:
 ```python
 p = ParallelDict(zip(range(3), ['a','2', '3',]))
-lazy_p = ParallelGen(dict(zip(range(3), ['a','2', '3',])))
 ```
 
 One should now instead do(note the call to dict):
 ```python
 p = parallel(dict(zip(range(3), ['a','2', '3',])))
-lazy_p = lazy_parallel(dict(zip(range(3), ['a','2', '3',])))
 ```
 
 The classes are still available however the functional interface should be favored for simplicity and future compatibility.
@@ -74,6 +72,11 @@ Since every operation (except foreach) returns a collection, these can be chaine
 
 ####Lazy evaluation of the results
 To avoid the evaluation of an intermittent results, you can use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain map/filter/reduce calls without evaluating the result on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
+
+Please note that lazy_parallel will not work well with dictionaries, as only their keys will be iterated over(because that is the standard iteration behavior over dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
+```python
+lazy_result = lazy_parallel(your_dict.keys()).map(something).filter(something_else)
+result = dict(lazy_result)
 
 The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
 Also note the the generator will not result in anything happening unless you actually do something to evaluate it (such as the list comprehension does in the below example). 

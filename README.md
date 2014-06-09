@@ -79,7 +79,6 @@ Please note that beacause lazy_parallel is meant to operate on all data structur
 lazy_result = lazy_parallel(your_dict.items()).map(something).filter(something_else)
 evaluated_result = dict(lazy_result)
 ```
-
 Personnally I would recommend just always using lazy_parallel and pass it whatever source of iterable data you want to work with, later evaluating the result into whatever type of value you need. I think it will make your code much easier to read than trying to guess what type of datastructure is returned after a bunch of chained calls using parallel. 
 
 The below examples illustrates lazy evaluation. Each operation on the parallel list results in the entire list being evaluated before the next operation, while the various generators allow every element go through each step before sending the next one in. 

@@ -70,16 +70,16 @@ Since every operation (except foreach) returns a collection, these can be chaine
 ['2', '4', '6', '8', '10', '12']
 ```
 
-####Lazy evaluation of the results
-To avoid the evaluation of an intermittent results, you can use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain map/filter/reduce calls without evaluating the result on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
+####On being lazy
+To avoid the evaluation of an intermittent result, you want to use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain method calls without evaluating the result on every operation(just like you would when building data processing pipelines using a chain of generator functions, see Python Cookbook 3rd 4.13. Creating Data Processing Pipelines). Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
 
-Please note that beacause lazy_parallel is meant to use all data_structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is the standard iteration behavior over dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
+Please note that beacause lazy_parallel is meant to operate on all data structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is what happens when you call iter() on dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
 
 ```python
 lazy_result = lazy_parallel(your_dict.items()).map(something).filter(something_else)
 evaluated_result = dict(lazy_result)
 
-The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
+The below example illustrates lazy evaluation. Each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
 Also note the the generator will not result in anything happening unless you actually do something to evaluate it (such as the list comprehension does in the below example). 
 
 ```python
@@ -114,7 +114,7 @@ Also note the the generator will not result in anything happening unless you act
 12
 8
 16
->>> another_pgen = lazy_parallel((num of num in range(5)))
+>>> another_pgen = lazy_parallel((num for num in range(5)))
 >>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
 0
 0

@@ -2,11 +2,31 @@
 ####Implementations of dict and list which support parallel map/reduce style operations
 
 ####Who said Python was not setup for multicore computing? 
-In this package you'll find very simple parallel implementations of list, string and dict and a generator. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
-Otherwise these datastructures are equivalent to the non-parallel ones found in the standard library.
+In this package you'll find a convenient interface to map/reduce/filter style operations that can be performed on standard Python data structures and generators using multiple processes. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 
 Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
-actually work in the interactive interpreter. 
+actually work in the interactive interpreter. Ver
+
+
+####Changes in 0.2
+
+Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel"  function returns an object matching the type of the data structure/generator passed as argument to it. the "lazy_parallel" returns a similar object expect that the result of any map/reduce/filter operation will only be evaluated on demand, allowing you to chain calls without intermediary evaluation. 
+
+One API change to note:
+
+Where previously one would do:
+```python
+p = ParallelDict(zip(range(3), ['a','2', '3',]))
+lazy_p = ParallelGen(dict(zip(range(3), ['a','2', '3',])))
+```
+
+One should now instead do:
+```python
+p = parallel(dict(zip(range(3), ['a','2', '3',])))
+lazy_p = lazy_parallel(dict(zip(range(3), ['a','2', '3',])))
+```
+
+The classes are still available however the functional interface should be favored for simplicity and future compatibility.
 
 ####Getting Started
 ```python
@@ -14,7 +34,7 @@ pip install python-parallel-collections
 pip install futures
 ```
 ```python
-from parallel.parallel_collections import ParallelList, ParallelDict, ParallelString, ParellelGen
+from parallel.parallel_collections import parallel, lazy_parallel
 ```
 
 ####Examples
@@ -23,7 +43,7 @@ from parallel.parallel_collections import ParallelList, ParallelDict, ParallelSt
 >>> def double(i):
 ...     return i*2
 ... 
->>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  parallel([[1,2,3],[4,5,6]])
 >>> flat_list = list_of_list.flatten()
 [1, 2, 3, 4, 5, 6]
 >>> list_of_list
@@ -48,13 +68,13 @@ None
 
 Since every operation (except foreach) returns a collection, these can be chained.
 ```python
->>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  parallel([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']
 ```
 
-####When to use the ParallelGen class?
-The ParallelGen class should be used in the same cases that you would normally use a generator: to avoid the evaluation of an intermittent datastructure. With the parallel generator, you can chain map/filter/reduce calls without evaluating the entire datastructure on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure will be processed one by one. This is a great way to save memory and work with potentially large or infinite streams of data. 
+####Lazy evaluation of the results
+To avoid the evaluation of an intermittent results, you can use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain map/filter/reduce calls without evaluating the result on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
 
 The below example illustrates this. Note each operation on the parallel list results in the entire list being evaluated before the next operation, while the generator allows every element go through each step before sending the next one in. 
 Also note the the generator will not result in anything happening unless you actually do something to evaluate it (such as the list comprehension does in the below example). 
@@ -67,7 +87,7 @@ Also note the the generator will not result in anything happening unless you act
 >>> def double(item):
 ...     return item * 2 
 ... 
->>> plist = ParallelList(range(5))
+>>> plist = parallel(range(5))
 >>> [i for i in plist.map(double).map(_print).map(double).map(_print)]
 0
 2
@@ -79,8 +99,36 @@ Also note the the generator will not result in anything happening unless you act
 8
 12
 16
->>> pgen = ParallelGen(range(5))
+>>> pgen = lazy_parallel(range(5))
 >>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
+0
+0
+2
+4
+4
+8
+6
+12
+8
+16
+>>> another_pgen = lazy_parallel((num of num in range(5)))
+>>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
+0
+0
+2
+4
+4
+8
+6
+12
+8
+16
+>>> def some_gen():
+...     for num in range(5):
+...         yield num
+...
+>>> another_pgen = lazy_parallel(some_gen)
+>>> [i for i in another_pgen.map(double).map(_print).map(double).map(_print)]
 0
 0
 2
@@ -104,7 +152,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 ... 
 >>> multiply(2)(3)
 6
->>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  parallel([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(multiply(2))
 [2, 4, 6, 8, 10, 12]
 ```
@@ -119,7 +167,7 @@ Functions passed to the map method of a list will be passed every element in the
 >>> def double(item):
 ...    return item * 2
 ...
->>> list_of_list =  ParallelList([[1,2,3],[4,5,6]])
+>>> list_of_list =  parallel([[1,2,3],[4,5,6]])
 >>> list_of_list.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']
 >>> def double_dict(item):
@@ -129,7 +177,7 @@ Functions passed to the map method of a list will be passed every element in the
 ...     except TypeError:
 ...         return [k, v * 2]
 ... 
->>> d = ParallelDict(zip(range(2), [[[1,2],[3,4]],[3,4]]))
+>>> d = parallel(dict(zip(range(2), [[[1,2],[3,4]],[3,4]])))
 >>> d
 {0: [[1, 2], [3, 4]], 1: [3, 4]}
 >>> flat_mapped = d.flatmap(double_dict)
@@ -151,7 +199,7 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 ...     all[letter].append(letter)
 ...     return all
 ... 
->>> p = ParallelList(['a', 'a', 'b'])
+>>> p = parallel(['a', 'a', 'b'])
 >>> reduced = p.reduce(group_letters, defaultdict(list))
 {'a': ['a', 'a'], 'b': ['b']}
 >>> p = ParallelString('aab')
@@ -165,7 +213,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> def is_digit(item):
 ...     return item.isdigit()
 ...
->>> p = ParallelList(['a','2','3'])
+>>> p = parallel(['a','2','3'])
 >>> pred = is_digit
 >>> filtered = p.filter(pred)
 >>> filtered
@@ -174,7 +222,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> def is_digit_dict(item):
 ...    return item[1].isdigit()
 ...
->>> p = ParallelDict(zip(range(3), ['a','2', '3',]))
+>>> p = parallel(dict(zip(range(3), ['a','2', '3',])))
 {0: 'a', 1: '2', 2: '3'}
 >>> pred = is_digit_dict
 >>> filtered = p.filter(pred)

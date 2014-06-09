@@ -189,9 +189,7 @@ def parallel(data_source):
     
     
 def lazy_parallel(data_source):
-    if data_source.__class__.__name__ == 'generator':
-        return ParallelGen(data_source)
-    elif data_source.__class__.__name__ == 'function':
+    if data_source.__class__.__name__ == 'function':
         if data_source().__class__.__name__ == 'generator':
             return ParallelGen(data_source())
     else:

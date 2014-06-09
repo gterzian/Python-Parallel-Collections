@@ -15,8 +15,8 @@ setup(
     If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
     Otherwise these datastructures are equivalent to their non-parallel peers found in the standard library.
     \n
-    Examples at http://gterzian.github.io/Python-Parallel-Collections/
-    Feedback at the same url highly sought after!''',
+    Examples at https://github.com/gterzian/Python-Parallel-Collections
+    Feedback and contributions highly sought after!''',
     author='Gregory Terzian',
     author_email='gregory.terzian@gmail.com',
     license='BSD License',

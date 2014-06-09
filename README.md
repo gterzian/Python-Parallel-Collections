@@ -74,6 +74,7 @@ Since every operation (except foreach) returns a collection, these can be chaine
 To avoid the evaluation of an intermittent results, you can use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain map/filter/reduce calls without evaluating the result on every operation, just like you would when building data processing pipelines using a chain of generator functions. Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
 
 Please note that beacause lazy_parallel is meant to use all data_structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is the standard iteration behavior over dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
+
 ```python
 lazy_result = lazy_parallel(your_dict.items()).map(something).filter(something_else)
 evaluated_result = dict(lazy_result)

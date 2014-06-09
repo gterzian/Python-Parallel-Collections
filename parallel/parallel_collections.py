@@ -166,3 +166,37 @@ class ParallelString(UserString, ParallelSeq):
         
     def flatten(self):
         return self
+        
+
+def parallel(data_source):
+    if data_source.__class__.__name__ == 'generator':
+        return ParallelGen(data_source)
+    elif data_source.__class__.__name__ == 'function':
+        if data_source().__class__.__name__ == 'generator':
+            return ParallelGen(data_source())
+    else:
+        try:
+            iterator = iter(data_source)
+        except TypeError:
+            raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name_)
+        if iterator.__class__.__name__ in ['listiterator', 'tupleiterator', 'setiterator']:
+            return ParallelList(data_source)
+        elif iterator.__class__.__name__ == 'dictionary-keyiterator':
+            return ParallelDict(data_source)
+        elif iterator.__class__.__name__ == 'iterator':
+            return ParallelString(data_source)
+    raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name__)
+    
+    
+def lazy_parallel(data_source):
+    if data_source.__class__.__name__ == 'generator':
+        return ParallelGen(data_source)
+    elif data_source.__class__.__name__ == 'function':
+        if data_source().__class__.__name__ == 'generator':
+            return ParallelGen(data_source())
+    else:
+        try:
+            iterator = iter(data_source)
+        except TypeError:
+            raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name__)     
+        return ParallelGen(data_source)

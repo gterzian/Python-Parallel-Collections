@@ -145,7 +145,7 @@ Also note the the generator will not result in anything happening unless you act
 ```
 
 ####Regarding lambdas and closures
-Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the collection methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a `__call__` method defined.
+Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the higher order methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a `__call__` method defined.
 ```python
 >>> class multiply(object):
 ...     def __init__(self, factor):

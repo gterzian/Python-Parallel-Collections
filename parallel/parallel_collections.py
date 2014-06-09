@@ -1,5 +1,5 @@
 from concurrent import futures
-from multiprocessing import Manager
+import multiprocessing
 from itertools import chain, imap, izip
 from UserList import UserList
 from UserDict import UserDict
@@ -25,11 +25,11 @@ class _Reducer(object):
     
     def __init__(self, func, init=None):
         self.func = func
-        self.list = Manager().list([init,])
+        self.list = multiprocessing.Manager().list([init,])
         
     def __call__(self, item):
-        init = self.func(self.list[0], item)
-        self.list[0] = init
+        aggregate = self.func(self.list[0], item)
+        self.list[0] = aggregate
     
     @property
     def result(self):

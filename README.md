@@ -9,8 +9,7 @@ actually work in the interactive interpreter. Ver
 
 
 ####Changes in 0.2
-
-Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel"  function returns an object matching the type of the data structure/generator passed as argument to it. the "lazy_parallel" returns a similar object expect that the result of any map/reduce/filter operation will only be evaluated on demand, allowing you to chain calls without intermediary evaluation. 
+Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel"  function returns an object matching the type of the data structure/generator passed as argument to it, which supports the map/flatmap/reduce/filter methods. the "lazy_parallel" returns a similar object expect that the result of any map/flatmap/reduce/filter operation will only be evaluated on demand, allowing you to chain calls while avoiding intermediary evaluation. 
 
 One API change to note:
 
@@ -20,7 +19,7 @@ p = ParallelDict(zip(range(3), ['a','2', '3',]))
 lazy_p = ParallelGen(dict(zip(range(3), ['a','2', '3',])))
 ```
 
-One should now instead do:
+One should now instead do(note the call to dict):
 ```python
 p = parallel(dict(zip(range(3), ['a','2', '3',])))
 lazy_p = lazy_parallel(dict(zip(range(3), ['a','2', '3',])))

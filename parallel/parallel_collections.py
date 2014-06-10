@@ -10,7 +10,8 @@ Pool = futures.ProcessPoolExecutor()
 
 class _Filter(object):
     '''Helper for the filter methods, 
-    need to use class as closures cannot be pickled and sent to other processes'''
+    need to use class as closures cannot be 
+    pickled and sent to other processes'''
     
     def __init__(self, predicate):
         self.predicate = predicate

@@ -31,7 +31,7 @@ pip install python-parallel-collections
 pip install futures
 ```
 ```python
-from parallel.parallel_collections import parallel, lazy_parallel
+from parallel import parallel, lazy_parallel
 ```
 
 ####Examples

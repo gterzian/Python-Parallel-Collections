@@ -8,6 +8,13 @@ from UserString import UserString
 
 Pool = futures.ProcessPoolExecutor()
 
+
+def _map(fn, *iterables):
+    '''using our own internal map function to avoid evaluation of the generator as done in futures.ProcessPoolExecutor().map'''
+    fs = (Pool.submit(fn, *args) for args in izip(*iterables))
+    for future in fs:
+        yield future.result()
+
 class _Filter(object):
     '''Helper for the filter methods, 
     need to use class as closures cannot be 
@@ -44,13 +51,6 @@ def parallel_gen(data_source):
     def inner_gen():
         for item in data_source:
             yield item
-            
-    def _map(fn, *iterables):
-        '''using our own internal map function to avoid evaluation of the generator as done in pool.map'''
-        print "%s for %s" % (iterables, fn)
-        fs = (pool.submit(fn, *args) for args in izip(*iterables))
-        for future in fs:
-            yield future.result()
         
     def inner_filter(pred):
         _filter = _Filter(pred)
@@ -71,15 +71,11 @@ def parallel_gen(data_source):
         [i for i in _map(_reducer, inner_gen())]
         return _reducer.result
         
-    def __iter__(func):
-        return func()
-        
     inner_gen.map = inner_map
     inner_gen.filter = inner_filter
     inner_gen.flatten = inner_flatten
     inner_gen.flatmap = inner_flatmap
     inner_gen.reduce = inner_reduce
-    inner_gen.__iter__ = __iter__
     return inner_gen
         
 class ParallelSeq(object):
@@ -120,35 +116,29 @@ class ParallelGen(ParallelSeq):
     def __iter__(self):
         for item in self.data:
             yield item
-            
-    def _map(self, fn, *iterables):
-        '''using our own internal map function to avoid evaluation of the generator as done in pool.map'''
-        fs = (self.pool.submit(fn, *args) for args in izip(*iterables))
-        for future in fs:
-            yield future.result()
        
     def foreach(self, func):
-        self.data = [i for i in self._map(func, self)]
+        self.data = [i for i in _map(func, self)]
         return None
         
     def filter(self, pred):
         _filter = _Filter(pred)
-        return self.__class__(i for i in self._map(_filter, self, ) if i)
+        return self.__class__(i for i in _map(_filter, self, ) if i)
         
     def flatten(self):
         '''if the data source consists of several sequences, those will be chained in one'''
         return self.__class__(chain(*self))
         
     def map(self, func):
-        return self.__class__(self._map(func, self, ))
+        return self.__class__(_map(func, self, ))
         
     def flatmap(self, func):
         data = self.flatten()
-        return self.__class__(self._map(func, data, ))
+        return self.__class__(_map(func, data, ))
         
     def reduce(self, function, init=None):
         _reducer = _Reducer(function, init)
-        for i in self._map(_reducer, self, ):
+        for i in _map(_reducer, self, ):
             #need to consume the generator returned by _map
             pass
         return _reducer.result

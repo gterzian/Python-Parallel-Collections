@@ -45,7 +45,9 @@ class _Reducer(object):
         
         
 def parallel_gen(data_source):
-    #closure implementation of ParallelGen
+    '''closure implementation of a parallel generator. Unfortunately the result of any map/filter/reduce call needs to be called as a func
+     to get the generator before being able to iterate over it. Just an experiment for now'''
+    
     pool = Pool
     
     def inner_gen():
@@ -77,8 +79,10 @@ def parallel_gen(data_source):
     inner_gen.flatmap = inner_flatmap
     inner_gen.reduce = inner_reduce
     return inner_gen
+    
         
 class ParallelSeq(object):
+    '''some sort of base class/interface for the other concrete ones'''
         
     def foreach(self, func):
         self.data = self.__class__(self.pool.map(func, self))

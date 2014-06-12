@@ -35,8 +35,53 @@ class _Reducer(object):
     @property
     def result(self):
         return self.list[0]
-
-
+        
+        
+def parallel_gen(data_source):
+    #closure implementation of ParallelGen
+    pool = Pool
+    
+    def inner_gen():
+        for item in data_source:
+            yield item
+            
+    def _map(fn, *iterables):
+        '''using our own internal map function to avoid evaluation of the generator as done in pool.map'''
+        print "%s for %s" % (iterables, fn)
+        fs = (pool.submit(fn, *args) for args in izip(*iterables))
+        for future in fs:
+            yield future.result()
+        
+    def inner_filter(pred):
+        _filter = _Filter(pred)
+        return parallel_gen(i for i in _map(_filter, inner_gen()) if i)
+        
+    def inner_flatten():
+        '''if the data source consists of several sequences, those will be chained in one'''
+        return parallel_gen(chain(*inner_gen()))
+        
+    def inner_map(func):
+        return parallel_gen(_map(func, inner_gen()))
+        
+    def inner_flatmap(func):
+        return parallel_gen(_map(func, inner_flatten()()))
+        
+    def inner_reduce(function, init=None):
+        _reducer = _Reducer(function, init)
+        [i for i in _map(_reducer, inner_gen())]
+        return _reducer.result
+        
+    def __iter__(func):
+        return func()
+        
+    inner_gen.map = inner_map
+    inner_gen.filter = inner_filter
+    inner_gen.flatten = inner_flatten
+    inner_gen.flatmap = inner_flatmap
+    inner_gen.reduce = inner_reduce
+    inner_gen.__iter__ = __iter__
+    return inner_gen
+        
 class ParallelSeq(object):
         
     def foreach(self, func):

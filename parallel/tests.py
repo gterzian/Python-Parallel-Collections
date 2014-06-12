@@ -2,7 +2,7 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import parallel, lazy_parallel
+from parallel_collections import parallel, lazy_parallel, parallel_gen
       
 
 class TestList(unittest.TestCase):
@@ -200,6 +200,40 @@ class TestGen(unittest.TestCase):
     def test_lazy_reduce(self):
         p = lazy_parallel(['a', 'a', 'b'])
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        reduced = p.reduce(group_letters, defaultdict(list))
+        self.assertEquals(dict(a=['a','a'], b=['b',]), dict(reduced))
+        self.assertFalse(reduced is p)
+        
+class TestClosure(unittest.TestCase):
+
+    def test_closure_flatten(self):
+        p = parallel_gen([range(10),range(10)])
+        self.assertEquals(list(p.flatten()()), list(chain(*[range(10),range(10)])))
+        
+    def test_closure_map(self):
+        p = parallel_gen([range(10),range(10)])
+        mapped = p.map(double)
+        self.assertEquals(list(mapped()), map(double, [range(10),range(10)]))
+        self.assertFalse(mapped is p)
+    
+    def test_closure_filter(self):
+        p = parallel_gen(['a','2','3'])
+        pred = is_digit
+        filtered = p.filter(pred)
+        self.assertEquals(list(filtered()), list(['2','3']))
+        self.assertFalse(filtered is p)
+        
+    def test_closure_flatmap(self):
+        p = parallel_gen([range(10),range(10)])
+        self.assertEquals(list(p.flatmap(double)()), map(double, chain(*[range(10),range(10)])))
+        self.assertFalse(p.flatmap(double) is p)
+    
+    def test_closure_chaining(self):
+        p = parallel_gen([range(10),range(10)])
+        self.assertEquals(list(p.flatten().map(double)()), list(parallel_gen((d for d in [range(10),range(10)])).flatmap(double)()))
+    
+    def test_closure_reduce(self):
+        p = parallel_gen(['a', 'a', 'b'])
         reduced = p.reduce(group_letters, defaultdict(list))
         self.assertEquals(dict(a=['a','a'], b=['b',]), dict(reduced))
         self.assertFalse(reduced is p)

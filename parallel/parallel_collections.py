@@ -45,8 +45,9 @@ class _Reducer(object):
         
         
 def parallel_gen(data_source):
-    '''closure implementation of a parallel generator. Unfortunately the result of any map/filter/reduce call needs to be called as a func
-     to get the generator before being able to iterate over it. Just an experiment for now'''
+    '''closure implementation of a parallel generator. Unfortunately the result of any map/filter/reduce call
+     needs to be called as a func to get the generator before being able to iterate over it. 
+     Just an experiment for now'''
     
     pool = Pool
     

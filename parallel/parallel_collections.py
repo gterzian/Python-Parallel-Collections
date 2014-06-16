@@ -45,15 +45,19 @@ class _Reducer(object):
         
         
 def parallel_gen(data_source):
-    '''closure implementation of a parallel generator. Unfortunately the result of any map/filter/reduce call
-     needs to be called as a func to get the generator before being able to iterate over it. 
-     Just an experiment for now'''
+    '''closure implementation of a parallel generator. Unfortunately you need the call to result()
+     to access the internal generator after any map/filter/reduce call, because a generator function does
+     not directly support the iterator prototocol(you need to call the function to get the generator first)
+     Just an experiment for now, guess this is just not how Python works'''
     
     pool = Pool
     
     def inner_gen():
         for item in data_source:
             yield item
+            
+    def result():
+        return inner_gen()
         
     def inner_filter(pred):
         _filter = _Filter(pred)
@@ -79,6 +83,7 @@ def parallel_gen(data_source):
     inner_gen.flatten = inner_flatten
     inner_gen.flatmap = inner_flatmap
     inner_gen.reduce = inner_reduce
+    inner_gen.result = result
     return inner_gen
     
         

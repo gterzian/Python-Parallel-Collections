@@ -208,29 +208,29 @@ class TestClosure(unittest.TestCase):
 
     def test_closure_flatten(self):
         p = parallel_gen([range(10),range(10)])
-        self.assertEquals(list(p.flatten()()), list(chain(*[range(10),range(10)])))
+        self.assertEquals(list(p.flatten().result()), list(chain(*[range(10),range(10)])))
         
     def test_closure_map(self):
         p = parallel_gen([range(10),range(10)])
         mapped = p.map(double)
-        self.assertEquals(list(mapped()), map(double, [range(10),range(10)]))
+        self.assertEquals(list(mapped.result()), map(double, [range(10),range(10)]))
         self.assertFalse(mapped is p)
     
     def test_closure_filter(self):
         p = parallel_gen(['a','2','3'])
         pred = is_digit
         filtered = p.filter(pred)
-        self.assertEquals(list(filtered()), list(['2','3']))
+        self.assertEquals(list(filtered.result()), list(['2','3']))
         self.assertFalse(filtered is p)
         
     def test_closure_flatmap(self):
         p = parallel_gen([range(10),range(10)])
-        self.assertEquals(list(p.flatmap(double)()), map(double, chain(*[range(10),range(10)])))
+        self.assertEquals(list(p.flatmap(double).result()), map(double, chain(*[range(10),range(10)])))
         self.assertFalse(p.flatmap(double) is p)
     
     def test_closure_chaining(self):
         p = parallel_gen([range(10),range(10)])
-        self.assertEquals(list(p.flatten().map(double)()), list(parallel_gen((d for d in [range(10),range(10)])).flatmap(double)()))
+        self.assertEquals(list(p.flatten().map(double).result()), list(parallel_gen((d for d in [range(10),range(10)])).flatmap(double).result()))
     
     def test_closure_reduce(self):
         p = parallel_gen(['a', 'a', 'b'])

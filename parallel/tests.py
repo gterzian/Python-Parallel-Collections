@@ -204,6 +204,7 @@ class TestGen(unittest.TestCase):
         self.assertEquals(dict(a=['a','a'], b=['b',]), dict(reduced))
         self.assertFalse(reduced is p)
         
+        
 class TestClosure(unittest.TestCase):
 
     def test_closure_flatten(self):
@@ -322,6 +323,40 @@ class TestString(unittest.TestCase):
         self.assertFalse(reduced is p)
         
 
+class TestFactories(unittest.TestCase):
+    
+    def test_returns_gen(self):
+        p = parallel((d for d in [range(10),range(10)]))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        def inner_gen():
+            for i in range(10):
+                yield i
+        p = parallel(inner_gen())
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        p = lazy_parallel(list())
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+    
+    def test_returns_list(self):
+        p = parallel(list())
+        self.assertTrue(p.__class__.__name__ == 'ParallelList')
+        p = parallel(tuple())
+        self.assertTrue(p.__class__.__name__ == 'ParallelList')
+        p = parallel(set())
+        self.assertTrue(p.__class__.__name__ == 'ParallelList')
+    
+    def test_raises_exception(self):
+        def inner_func():
+            return 1
+        class InnerClass(object):
+            pass
+        with self.assertRaises(TypeError):
+            p = parallel(inner_func())
+        with self.assertRaises(TypeError):
+            p = parallel(1)
+        with self.assertRaises(TypeError):
+            p = parallel(InnerClass())
+        
+    
 def _print(item):
     print item 
     return item       

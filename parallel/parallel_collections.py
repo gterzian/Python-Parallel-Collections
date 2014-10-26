@@ -224,7 +224,7 @@ def parallel(data_source):
         try:
             iterator = iter(data_source)
         except TypeError:
-            raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name_)
+            raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name__)
         if iterator.__class__.__name__ in ['listiterator', 'tupleiterator', 'setiterator']:
             return ParallelList(data_source)
         elif iterator.__class__.__name__ == 'dictionary-keyiterator':

@@ -8,21 +8,7 @@ actually work in the interactive interpreter.
 
 
 ####Changes in 0.2
-Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel"  function returns an object matching the type of the data structure/generator passed as argument to it, which supports the map/flatmap/reduce/filter methods. the "lazy_parallel" returns a similar object expect that the result of any map/flatmap/reduce/filter operation will only be evaluated on demand, allowing you to chain calls while avoiding intermediary evaluation. 
-
-One API change to note:
-
-Where previously one would do:
-```python
-p = ParallelDict(zip(range(3), ['a','2', '3',]))
-```
-
-One should now instead do(note the call to dict):
-```python
-p = parallel(dict(zip(range(3), ['a','2', '3',])))
-```
-
-The classes are still available however the functional interface should be favored for simplicity and future compatibility.
+Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel" function takes a data structure as argument and returns an object which supports the map/flatmap/reduce/filter methods, the "lazy_parallel" returns an object who will only evaluate the results of map/flatmap/reduce/filter operations on demand, allowing you to chain calls while avoiding intermediary evaluation. In both cases, every method call will return a new object containing the result of the call (except foreach), therefore calls can be chained JQuery style.
 
 ####Getting Started
 ```python
@@ -70,9 +56,11 @@ Since every operation (except foreach) returns a collection, these can be chaine
 ```
 
 ####On being lazy
-To avoid the evaluation of an intermittent result, you want to use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain method calls without evaluating the result on every operation(just like you would when building data processing pipelines using a chain of generator functions, see Python Cookbook 3rd 4.13. Creating Data Processing Pipelines). Each element in the datastructure or generator stream will be processed one by one and the final result only evaluated on demand. This is a great way to save memory and work with potentially large or infinite streams of data. 
+To avoid the evaluation of an intermittent method call, you want to use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain method calls without evaluating the result on every operation. It will also result in each element in the datastructure or generator being processed one at the time without creating intermittent datastructures. This is a great way to save memory when working with large or infinite streams of data. 
 
-Please note that beacause lazy_parallel is meant to operate on all data structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is what happens when you call iter() on dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
+For more on this technique as it applies to Python, see the Python Cookbook 3rd 4.13. Creating Data Processing Pipelines.
+
+Please note that because lazy_parallel is meant to operate on all data structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is what happens when you call iter() on dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
 
 ```python
 lazy_result = lazy_parallel(your_dict.items()).map(something).filter(something_else)

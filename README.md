@@ -8,7 +8,9 @@ actually work in the interactive interpreter.
 
 
 ####Changes in 0.2
-Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. The "parallel" function takes a data structure as argument and returns an object which supports the map/flatmap/reduce/filter methods, the "lazy_parallel" returns an object who will only evaluate the results of map/flatmap/reduce/filter operations on demand, allowing you to chain calls while avoiding intermediary evaluation. In both cases, every method call will return a new object containing the result of the call (except foreach), therefore calls can be chained JQuery style.
+Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. 
+The `parallel` function takes a data structure as argument and returns an object which supports the map/flatmap/reduce/filter methods, the `lazy_parallel` returns an object who will only evaluate the results of map/flatmap/reduce/filter operations on demand, allowing you to chain calls while avoiding intermediary evaluation. 
+In both cases, every method call will return a new object containing the result of the call (except foreach), therefore calls can be chained JQuery style.
 
 ####Getting Started
 ```python
@@ -20,7 +22,6 @@ from parallel import parallel, lazy_parallel
 ```
 
 ####Examples
-
 ```python
 >>> def double(i):
 ...     return i*2

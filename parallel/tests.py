@@ -47,10 +47,10 @@ class TestParallel(unittest.TestCase):
         self.assertEqual(list(p.flatten().map(double)), list(list(parallel((d for d in [[0,1,2,3,4,5],[0,1,2,3,4,5]])).flatmap(double))))
     
     def test_reduce(self):
-        p = parallel(['a', 'a', 'b'])
+        p = parallel(['a', 'a', 'b', 'a', 'a', 'b', 'a', 'a', 'b', 'a', 'a', 'b'])
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
         reduced = p.reduce(group_letters, defaultdict(list))
-        self.assertEqual(dict(a=['a','a'], b=['b',]), dict(reduced))
+        self.assertEqual(defaultdict(a=['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'], b=['b', 'b', 'b', 'b']), reduced)
         self.assertFalse(reduced is p)
     
     def test_gen_func_flatten(self):

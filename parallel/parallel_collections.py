@@ -66,7 +66,7 @@ class ParallelGen(object):
         
     def reduce(self, function, init=None):
         _reducer = _Reducer(function, init)
-        for i in self.pool.map(_reducer, self, ):
+        for i in map(_reducer, self, ):
             #need to consume the generator returned by self.pool.map
             pass
         return _reducer.result

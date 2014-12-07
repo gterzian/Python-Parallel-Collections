@@ -1,3 +1,5 @@
+import typing
+from typing import Iterable
 from concurrent import futures
 import multiprocessing
 from itertools import chain
@@ -41,15 +43,15 @@ class ParallelGen(object):
         self.data = data_source
         self.pool = Pool
     
-    def __iter__(self):
+    def __iter__(self) -> Iterable[object]:
         for item in self.data:
             yield item
        
-    def foreach(self, func):
+    def foreach(self, func) -> None:
         self.data = [i for i in self.pool.map(func, self)]
         return None
         
-    def filter(self, pred):
+    def filter(self, pred) -> 'ParallelGen':
         _filter = _Filter(pred)
         return self.__class__(i for i in self.pool.map(_filter, self, ) if i)
         
@@ -57,10 +59,10 @@ class ParallelGen(object):
         '''if the data source consists of several sequences, those will be chained in one'''
         return self.__class__(chain(*self))
         
-    def map(self, func):
+    def map(self, func) -> 'ParallelGen':
         return self.__class__(self.pool.map(func, self, ))
         
-    def flatmap(self, func):
+    def flatmap(self, func) -> 'ParallelGen':
         data = self.flatten()
         return self.__class__(self.pool.map(func, data, ))
         
@@ -72,7 +74,7 @@ class ParallelGen(object):
         return _reducer.result
         
         
-def parallel(data_source):
+def parallel(data_source) -> ParallelGen:
     if data_source.__class__.__name__ == 'function':
         if data_source().__class__.__name__ == 'generator':
             return ParallelGen(data_source())

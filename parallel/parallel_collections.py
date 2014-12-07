@@ -15,6 +15,7 @@ def _map(fn, *iterables):
     for future in fs:
         yield future.result()
 
+
 class _Filter(object):
     '''Helper for the filter methods, 
     need to use class as closures cannot be 

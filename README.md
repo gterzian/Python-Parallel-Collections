@@ -50,7 +50,6 @@ None
 Since every operation (except foreach) returns a collection, these can be chained.
 ```python
 >>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
-<parallel.parallel_collections.ParallelGen object at 0x10f931990>
 >>> list(parallel_gen.flatmap(double).map(str))
 ['2', '4', '6', '8', '10', '12']
 ```

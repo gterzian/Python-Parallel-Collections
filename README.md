@@ -1,16 +1,14 @@
 ###Python Parallel Collections
 
 ####Who said Python was not setup for multicore computing? 
-In this package you'll find a convenient interface to map/reduce/filter style operations that can be performed on standard Python data structures and generators using multiple processes. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
+In this package you'll find a convenient interface to parallel map/reduce/filter style operations that can be performed on standard Python data structures and generators. The parallelism uses the [Python 2.7 backport](http://pythonhosted.org/futures/#processpoolexecutor-example) of the [concurrent.futures](http://docs.python.org/dev/library/concurrent.futures.html) package. If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 
 Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
 actually work in the interactive interpreter.
 
 
-####Changes in 0.2
-Version 0.2 introduces a simple functional interface to the package which should be favored over using the classes directly. 
-The `parallel` function takes a data structure as argument and returns an object which supports the map/flatmap/reduce/filter methods, the `lazy_parallel` returns an object who will only evaluate the results of map/flatmap/reduce/filter operations on demand, allowing you to chain calls while avoiding intermediary evaluation. 
-In both cases, every method call will return a new object containing the result of the call (except foreach), therefore calls can be chained JQuery style.
+####Changes in 1.0
+Version 1.0 introduces a massive simplification of the code base. No longer to we think in terms of concrete data structures, rather we work with a ParallelGen object, which is essentially a generator with parallel map/filter/reduce methods. You instantiate a ParallelGen by passing along an iterable, it can be a data structure or a generator. Every method call returns a new ParallelGen object containing the unevaluated 'results' of all previous calls, allowing you to chain calls and only evaluate the results when you need them.  
 
 ####Getting Started
 ```python
@@ -26,113 +24,42 @@ from parallel import parallel, lazy_parallel
 >>> def double(i):
 ...     return i*2
 ... 
->>> list_of_list =  parallel([[1,2,3],[4,5,6]])
->>> flat_list = list_of_list.flatten()
-[1, 2, 3, 4, 5, 6]
->>> list_of_list
-[[1, 2, 3], [4, 5, 6]]
->>> flat_list.map(double)
+>>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
+<parallel.parallel_collections.ParallelGen object at 0x10f931990>
+>>> flat_gen = parallel_gen.flatten()
+<parallel.parallel_collections.ParallelGen object at 0x10f934990>
+>>> list(flat_gen.map(double))
 [2, 4, 6, 8, 10, 12]
->>> list_of_list.flatmap(double)
+>>> list(parallel_gen.flatmap(double))
 [2, 4, 6, 8, 10, 12]
 ```
 
-As you see every method call returns a new collection, instead of changing the current one.
-The exception is the foreach method, which is equivalent to map but instead of returning a new collection it operates directly on the 
-current one and returns `None`.  
+As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator into order to get the resuts, as is done in the call to list.
+
+The foreach method is equivalent to map but instead of returning a new ParallelGen it operates directly on the 
+current one and returns `None`. 
 ```python
->>> flat_list
+>>> list(flat_gen)
 [1, 2, 3, 4, 5, 6]
->>> flat_list.foreach(double)
+>>> flat_gen.foreach(double)
 None
->>> flat_list
+>>> list(flat_gen)
 [2, 4, 6, 8, 10, 12]
 ```
 
 Since every operation (except foreach) returns a collection, these can be chained.
 ```python
->>> list_of_list =  parallel([[1,2,3],[4,5,6]])
->>> list_of_list.flatmap(double).map(str)
+>>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
+<parallel.parallel_collections.ParallelGen object at 0x10f931990>
+>>> list(parallel_gen.flatmap(double).map(str))
 ['2', '4', '6', '8', '10', '12']
 ```
 
 ####On being lazy
-To avoid the evaluation of an intermittent method call, you want to use lazy_parallel on any datastructure, or just pass a generator expression or function to either parallel or lazy_parallel. This will allow you to chain method calls without evaluating the result on every operation. It will also result in each element in the datastructure or generator being processed one at the time without creating intermittent datastructures. This is a great way to save memory when working with large or infinite streams of data. 
+The parallel function will return a ParallelGen instance, as will any subsequent method call. This will allow you to chain method calls without evaluating the result on every operation, instead each element in the initial datastructure or generator will be processed one at the time without creating intermittent datastructures. This is a great way to save memory when working with large or infinite streams of data. 
 
 For more on this technique as it applies to Python, see the Python Cookbook 3rd 4.13. Creating Data Processing Pipelines.
 
-Please note that because lazy_parallel is meant to operate on all data structures passed to it coherently, it will not work well with dictionaries, as only their keys will be iterated over(because that is what happens when you call iter() on dictionaries in Python). If you want to work with the key/values of dictionary in a lazy way, best to just do:
-
-```python
-lazy_result = lazy_parallel(your_dict.items()).map(something).filter(something_else)
-evaluated_result = dict(lazy_result)
-```
-Personnally I would recommend just always using lazy_parallel and passing it whatever source of iterable data you want to work with, later evaluating the result into whatever type of value you need. I think it will make your code much easier to read than trying to guess what type of datastructure is returned after a bunch of chained calls using parallel. 
-
-The below examples illustrates lazy evaluation. Each operation on the parallel list results in the entire list being evaluated before the next operation, while the various generators allow every element go through each step before sending the next one in. 
-Also note the the generator will not result in anything happening unless you actually do something to evaluate it (such as the list comprehension does in the below example). 
-
-```python
->>> def _print(item):
-...     print item 
-...     return item
-... 
->>> def double(item):
-...     return item * 2 
-... 
->>> plist = parallel(range(5))
->>> [i for i in plist.map(double).map(_print).map(double).map(_print)]
-0
-2
-4
-6
-8
-0
-4
-8
-12
-16
->>> pgen = lazy_parallel(range(5))
->>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
-0
-0
-2
-4
-4
-8
-6
-12
-8
-16
->>> another_pgen = lazy_parallel((num for num in range(5)))
->>> [i for i in pgen.map(double).map(_print).map(double).map(_print)]
-0
-0
-2
-4
-4
-8
-6
-12
-8
-16
->>> def some_gen():
-...     for num in range(5):
-...         yield num
-...
->>> another_pgen = lazy_parallel(some_gen)
->>> [i for i in another_pgen.map(double).map(_print).map(double).map(_print)]
-0
-0
-2
-4
-4
-8
-6
-12
-8
-16
-```
 
 ####Regarding lambdas and closures
 Sadly lambdas, closures and partial functions cannot be passed around multiple processes, so every function that you pass to the higher order methods needs to be defined using the def statement. If you want the operation to carry extra state, use a class with a `__call__` method defined.
@@ -145,8 +72,8 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 ... 
 >>> multiply(2)(3)
 6
->>> list_of_list =  parallel([[1,2,3],[4,5,6]])
->>> list_of_list.flatmap(multiply(2))
+>>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
+>>> list(parallel_gen.flatmap(multiply(2)))
 [2, 4, 6, 8, 10, 12]
 ```
 
@@ -160,33 +87,20 @@ Functions passed to the map method of a list will be passed every element in the
 >>> def double(item):
 ...    return item * 2
 ...
->>> list_of_list =  parallel([[1,2,3],[4,5,6]])
->>> list_of_list.flatmap(double).map(str)
+>>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
+>>> parallel_gen.flatmap(double).map(str)
 ['2', '4', '6', '8', '10', '12']
->>> def double_dict(item):
-...     k,v = item
-...     try:
-...         return [k, [i *2 for i in v]]
-...     except TypeError:
-...         return [k, v * 2]
-... 
->>> d = parallel(dict(zip(range(2), [[[1,2],[3,4]],[3,4]])))
->>> d
-{0: [[1, 2], [3, 4]], 1: [3, 4]}
->>> flat_mapped = d.flatmap(double_dict)
->>> flat_mapped
-{0: [2, 4, 6, 8], 1: [6, 8]}
-
 >>> def to_upper(item):
 ...     return item.upper() 
 ... 
 >>> p = parallel('qwerty')
 >>> mapped = p.map(to_upper)
+>>> ''.join(mapped)
 'QWERTY'
 ```
 
 ####Reduce
-Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer
+Reduce accepts an optional initializer, which will be passed as the first argument to every call to the function passed as reducer and returned by the method. 
 ```python
 >>> def group_letters(all, letter):
 ...     all[letter].append(letter)
@@ -209,7 +123,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> p = parallel(['a','2','3'])
 >>> pred = is_digit
 >>> filtered = p.filter(pred)
->>> filtered
+>>> list(filtered)
 ['2', '3']
 
 >>> def is_digit_dict(item):
@@ -222,6 +136,7 @@ The Filter method should be passed a predicate, which means a function that will
 >>> filtered
 {1: '2', 2: '3'}
 >>> p = parallel('a23')
->>> p.filter(is_digit)
+>>> filtered = p.filter(is_digit)
+>>>''.join(filtered)
 '23'
 ```

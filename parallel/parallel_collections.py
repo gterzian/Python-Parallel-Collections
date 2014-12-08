@@ -95,4 +95,18 @@ def parallel(data_source):
 
 def lazy_parallel(data_source):
     raise DeprecationWarning('lazy_parallel has been deprecated, please use parallel instead, it has become lazy too')
-    return parallel(data_source)
+    
+
+
+class ParallelSeq(object):
+    def __init__(self, *args, **kwargs):
+        raise DeprecationWarning('{0} has been deprecated, please use the parallel factory function instead'.format(self.__class__.__name__))
+
+class ParallelList(ParallelSeq):
+    pass
+
+class ParallelDict(ParallelSeq):
+    pass
+
+class ParallelString(ParallelSeq):
+    pass

@@ -1,1 +1,1 @@
-from parallel_collections import parallel, lazy_parallel
+from parallel_collections import parallel, lazy_parallel, ParallelSeq, ParallelList, ParallelDict, ParallelString

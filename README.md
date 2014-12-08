@@ -15,8 +15,8 @@ There is not distinction between using `parallel` and `lazy_parallel`, everythin
 
 ####Getting Started
 ```python
-pip install python-parallel-collections
 pip install futures
+pip install python-parallel-collections
 ```
 ```python
 from parallel import parallel, lazy_parallel

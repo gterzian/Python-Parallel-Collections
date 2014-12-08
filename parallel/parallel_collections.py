@@ -83,6 +83,7 @@ class ParallelGen(object):
             
  
 def parallel(data_source):
+    '''factory function that returns ParallelGen objects, pass an iterable as data_source'''
     if data_source.__class__.__name__ == 'function':
         if data_source().__class__.__name__ == 'generator':
             return ParallelGen(data_source())

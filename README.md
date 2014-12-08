@@ -8,7 +8,7 @@ actually work in the interactive interpreter.
 
 
 ####Changes in 1.0
-Version 1.0 introduces a massive simplification of the code base. No longer do we think in terms of opereations on concrete data structures, rather we work with a `ParallelGen` object, which is essentially a generator with parallel map/filter/reduce methods. You instantiate one by passing along an iterable to the `parallel` function which returns a ParallelGen object. Every method call returns a new ParallelGen object containing the unevaluated 'results' of all previous calls, allowing you to chain calls and only evaluate the results when you need them. When the time to evaluate results come, you can feed the results back into the appropriate concrete data structure or do something else with them. 
+Version 1.0 introduces a massive simplification of the code base. No longer do we operate on concrete 'parallel' data structures, rather we work with just one `ParallelGen` object. This object is essentially a generator with parallel map/filter/reduce methods. You instantiate one by passing along an iterable to the `parallel` function. Every method call returns a new ParallelGen object, allowing you to chain calls and only evaluate the results when you need them. 
 
 API changes to note:
 There is no distinction anymore between using `parallel` and `lazy_parallel`, just use parallel and everything will be lazy.
@@ -19,7 +19,7 @@ pip install futures
 pip install python-parallel-collections
 ```
 ```python
-from parallel import parallel, lazy_parallel
+from parallel import parallel
 ```
 
 ####Examples
@@ -37,7 +37,7 @@ from parallel import parallel, lazy_parallel
 [2, 4, 6, 8, 10, 12]
 ```
 
-As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator into order to get the resuts, as is done in the call to list.
+As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator into order to get the resuts, as is done in the call to `list`.
 
 The foreach method is equivalent to map but instead of returning a new ParallelGen it operates directly on the 
 current one and returns `None`. 

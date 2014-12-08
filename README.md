@@ -11,7 +11,7 @@ actually work in the interactive interpreter.
 Version 1.0 introduces a massive simplification of the code base. No longer do we think in terms of opereations on concrete data structures, rather we work with a `ParallelGen` object, which is essentially a generator with parallel map/filter/reduce methods. You instantiate one by passing along an iterable to the `parallel` function which returns a ParallelGen object. Every method call returns a new ParallelGen object containing the unevaluated 'results' of all previous calls, allowing you to chain calls and only evaluate the results when you need them. When the time to evaluate results come, you can feed the results back into the appropriate concrete data structure or do something else with them. 
 
 API changes to note:
-There is not distinction between using `parallel` and `lazy_parallel`, everything is lazy now!
+There is no distinction anymore between using `parallel` and `lazy_parallel`, just use parallel and everything will be lazy.
 
 ####Getting Started
 ```python

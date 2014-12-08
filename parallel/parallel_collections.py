@@ -92,3 +92,7 @@ def parallel(data_source):
         except TypeError:
             raise TypeError('supplied data source must be a generator, a generator function or an iterable, not %s' % data_source.__class__.__name__)     
         return ParallelGen(data_source)
+
+def lazy_parallel(data_source):
+    raise DeprecationWarning('lazy_parallel has been deprecated, please use parallel instead, it has become lazy too')
+    return parallel(data_source)

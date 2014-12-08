@@ -2,7 +2,7 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import parallel
+from parallel_collections import parallel, lazy_parallel
       
 
 class TestGen(unittest.TestCase):
@@ -135,6 +135,10 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
         p = parallel(set())
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+    
+    def test_lazy_parallel(self):
+        with self.assertRaises(DeprecationWarning):
+            p = lazy_parallel((d for d in [range(10),range(10)]))
     
     def test_raises_exception(self):
         def inner_func():

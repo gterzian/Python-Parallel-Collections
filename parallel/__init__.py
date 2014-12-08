@@ -1,1 +1,1 @@
-from parallel_collections import parallel
+from parallel_collections import parallel, lazy_parallel

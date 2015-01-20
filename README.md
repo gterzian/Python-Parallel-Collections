@@ -58,7 +58,7 @@ Since every operation (except foreach) returns a collection, operations can be c
 ####On being lazy
 The parallel function will return a ParallelGen instance, as will any subsequent method call. This will allow you to chain method calls without evaluating the result on every operation, instead each element in the initial datastructure or generator will be processed one at the time without creating intermittent datastructures. This is a great way to save memory when working with large or infinite streams of data. 
 
-For more on this technique as it applies to Python, see the Python Cookbook 3rd 4.13. Creating Data Processing Pipelines.
+For more on this technique as it applies to Python, see the [Python Cookbook](http://shop.oreilly.com/product/0636920027072.do) 3rd 4.13. Creating Data Processing Pipelines.
 
 
 ####Regarding lambdas and closures

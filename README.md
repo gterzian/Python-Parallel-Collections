@@ -48,7 +48,7 @@ None
 [2, 4, 6, 8, 10, 12]
 ```
 
-Since every operation (except foreach) returns a collection, these can be chained.
+Since every operation (except foreach) returns a collection, operations can be chained.
 ```python
 >>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
 >>> list(parallel_gen.flatmap(double).map(str))

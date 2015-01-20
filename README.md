@@ -35,7 +35,7 @@ from parallel import parallel
 [2, 4, 6, 8, 10, 12]
 ```
 
-As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator into order to get the resuts, as is done in the call to `list`.
+As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator in order to get the resuts, as is done in the call to `list`.
 
 The foreach method is equivalent to map but instead of returning a new ParallelGen it operates directly on the 
 current one and returns `None`. 

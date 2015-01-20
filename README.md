@@ -28,9 +28,7 @@ from parallel import parallel
 ...     return i*2
 ... 
 >>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
-<parallel.parallel_collections.ParallelGen object at 0x10f931990>
 >>> flat_gen = parallel_gen.flatten()
-<parallel.parallel_collections.ParallelGen object at 0x10f934990>
 >>> list(flat_gen.map(double))
 [2, 4, 6, 8, 10, 12]
 >>> list(parallel_gen.flatmap(double))

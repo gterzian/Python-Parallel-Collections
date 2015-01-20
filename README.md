@@ -81,7 +81,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 
 ####Map and FlatMap
 
-Functions passed to the map method of a list will be passed every element in the list and should return a single element. For a dict, the function will receive a tuple (key, values) for every key in the dict, and should equally return a two element sequence. Flatmap will first flatten the sequence then apply map to it.
+Functions passed to the map method of a list will be passed every element in the sequence and should return one element. Flatmap will first flatten the sequence then apply map to it.
  
 ```python
 >>> def double(item):
@@ -115,7 +115,7 @@ Reduce accepts an optional initializer, which will be passed as the first argume
 ```
 
 ####Filter
-The Filter method should be passed a predicate, which means a function that will return True or False and will be called once for every element in the list and for every (key, values) in a dict.
+The Filter method should be passed a predicate, which means a function that will return True or False and will be called once for every element in the sequence.
 ```python
 >>> def is_digit(item):
 ...     return item.isdigit()

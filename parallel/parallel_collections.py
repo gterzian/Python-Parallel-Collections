@@ -10,7 +10,8 @@ Pool = futures.ProcessPoolExecutor()
 
 
 def _map(fn, *iterables):
-    '''using our own internal map function to avoid evaluation of the generator as done in futures.ProcessPoolExecutor().map'''
+    '''using our own internal map function to avoid evaluation 
+    of the generator as done in futures.ProcessPoolExecutor().map'''
     fs = (Pool.submit(fn, *args) for args in izip(*iterables))
     for future in fs:
         yield future.result()

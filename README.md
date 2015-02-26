@@ -9,8 +9,8 @@ In this package you'll find a convenient interface to parallel map/reduce/filter
 
 If you can define your problem in terms of map/reduce/filter operations, it will run on several parallel Python processes on your machine, taking advantage of multiple cores. 
 
-Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
-actually work in the interactive interpreter.
+_Please note that although the below examples are written in interactive style, due to the nature of multiple processes they might not 
+actually work in the interactive interpreter._
 
 
 ####Changes in 1.0

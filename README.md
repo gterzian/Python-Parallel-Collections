@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gterzian/Python-Parallel-Collections.svg?branch=master)](https://travis-ci.org/gterzian/Python-Parallel-Collections)
+
 ###Python Parallel Collections
 
 ####Who said Python was not setup for multicore computing? 

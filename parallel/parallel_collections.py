@@ -62,7 +62,7 @@ class ParallelGen(object):
         
     def filter(self, pred):
         _filter = _Filter(pred)
-        return self.__class__(i for i in _map(_filter, self, ) if i)
+        return self.__class__((i for i in _map(_filter, self, ) if i is not None))
         
     def flatten(self):
         '''if the data source consists of several sequences, those will be chained in one'''

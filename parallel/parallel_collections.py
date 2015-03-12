@@ -23,7 +23,10 @@ class _Filter(object):
     pickled and sent to other processes'''
     
     def __init__(self, predicate):
-        self.predicate = predicate
+        if predicate is None:
+            self.predicate = bool
+        else:
+            self.predicate = predicate
         
     def __call__(self, item):
         if self.predicate(item):

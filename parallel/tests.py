@@ -34,6 +34,14 @@ class TestGen(unittest.TestCase):
         self.assertEquals(list(filtered), list(['2','3']))
         self.assertFalse(filtered is p)
         
+    def test_filter_with_ret_none_func(self):
+        p = parallel((d for d in [True, False]))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        pred = ret_none
+        filtered = p.filter(pred)
+        self.assertEquals(list(filtered), list([]))
+        self.assertFalse(filtered is p)
+
     def test_flatmap(self):
         p = parallel((d for d in [range(10),range(10)]))
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')

@@ -42,6 +42,14 @@ class TestGen(unittest.TestCase):
         self.assertEquals(list(filtered), list([]))
         self.assertFalse(filtered is p)
 
+    def test_filter_with_none_as_func(self):
+        p = parallel((d for d in [False, True]))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        pred = None
+        filtered = p.filter(pred)
+        self.assertEquals(list(filtered), list([True]))
+        self.assertFalse(filtered is p)
+
     def test_flatmap(self):
         p = parallel((d for d in [range(10),range(10)]))
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
@@ -205,6 +213,9 @@ def double_dict(item):
         return [k, [i *2 for i in v]]
     except TypeError:
         return [k, v * 2]
+
+def ret_none(item):
+    return None
 
 if __name__ == '__main__':
     unittest.main()

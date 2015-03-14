@@ -23,11 +23,17 @@ class _Filter(object):
     pickled and sent to other processes'''
     
     def __init__(self, predicate):
-        self.predicate = predicate
+        if predicate is None:
+            self.predicate = bool
+        else:
+            self.predicate = predicate
         
     def __call__(self, item):
         if self.predicate(item):
-            return item
+            return (True, item)
+        else:
+            return (False, None)
+
         
             
 class _Reducer(object):
@@ -62,7 +68,7 @@ class ParallelGen(object):
         
     def filter(self, pred):
         _filter = _Filter(pred)
-        return self.__class__((i for i in _map(_filter, self, ) if i is not None))
+        return self.__class__((i[1] for i in _map(_filter, self, ) if i[0]))
         
     def flatten(self):
         '''if the data source consists of several sequences, those will be chained in one'''

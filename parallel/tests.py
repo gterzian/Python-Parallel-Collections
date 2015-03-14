@@ -22,11 +22,11 @@ class TestHelpers(unittest.TestCase):
         
     def test_filter_none(self):
         _filter = _Filter(is_digit)
-        self.assertEquals(_filter('a'), None)
+        self.assertEquals(_filter('a'), (False, None))
     
     def test_filter_returns_passing_item(self):
         _filter = _Filter(is_digit)
-        self.assertEquals(_filter('1'), '1')
+        self.assertEquals(_filter('1'), (True, '1'))
         
 class TestGen(unittest.TestCase):
     

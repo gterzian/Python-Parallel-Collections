@@ -1,9 +1,7 @@
 ###Python Parallel Collections
 
 [![Build Status](https://travis-ci.org/gterzian/Python-Parallel-Collections.svg?branch=master)](https://travis-ci.org/gterzian/Python-Parallel-Collections)
-
 [![Coverage Status](https://coveralls.io/repos/gterzian/Python-Parallel-Collections/badge.svg?branch=master)](https://coveralls.io/r/gterzian/Python-Parallel-Collections?branch=master)
-
 [![downloads](https://pypip.in/d/python-parallel-collections/badge.png)](https://crate.io/packages/python-parallel-collections/)
 
 ####Who said Python was not setup for multicore computing? :smiley_cat:

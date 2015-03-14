@@ -2,10 +2,16 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import parallel, lazy_parallel, ParallelSeq, ParallelList, ParallelDict, ParallelString
+from parallel_collections import parallel, lazy_parallel, ParallelSeq, ParallelList, ParallelDict, ParallelString, _Reducer
       
 
 class TestGen(unittest.TestCase):
+        
+    def test_reducer(self):
+        reducer = _Reducer(group_letters, defaultdict(list))
+        reducer('a')
+        reducer('a')
+        self.assertEquals(reducer.result, {'a': ['a', 'a']})
     
     def test_flatten(self):
         p = parallel((d for d in [range(10),range(10)]))

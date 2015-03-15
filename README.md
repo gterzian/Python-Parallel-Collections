@@ -13,6 +13,18 @@ _Please note that although the below examples are written in interactive style, 
 actually work in the interactive interpreter._
 
 
+####API changes in 1.2
+From version 1.2, the behavior of parallel filter method was changed to same with CPython's built-in filter.
+The differences with previous version are as follows:
+
+* It became able to use `None` as a predicate for filter.
+  * In previous versions, it raises.
+
+* It became able to handle `None` elements in an iterable
+  * In previous versions, `None` elements are always filtered regardless of its predicate.
+
+These modifications are based on [Python's Reference](https://docs.python.org/3.5/library/functions.html#filter), and [source of CPython filter method](https://github.com/python/cpython/blob/master/Python/bltinmodule.c).
+
 ####Changes in 1.0
 Version 1.0 introduces a massive simplification of the code base. No longer do we operate on concrete 'parallel' data structures, rather we work with just one `ParallelGen` object. This object is essentially a generator with parallel map/filter/reduce methods wrapping around whatever data structure (or generator) you instantiate it with. You instantiate one by passing along an iterable to the `parallel` factory function. Every method call returns a new ParallelGen object, allowing you to chain calls and only evaluate the results when you need them. 
 

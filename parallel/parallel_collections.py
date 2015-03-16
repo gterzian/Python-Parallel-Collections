@@ -11,7 +11,7 @@ Pool = futures.ProcessPoolExecutor()
 
 '''Helper for the filter methods.
 This is a container of the result of some_evaluation(arg) and arg itself.'''
-EvalResult = namedtuple('EvalResult', ['value', 'arg'])
+EvalResult = namedtuple('EvalResult', ['bool', 'item'])
 
 
 def _map(fn, *iterables):
@@ -35,9 +35,9 @@ class _Filter(object):
         
     def __call__(self, item):
         if self.predicate(item):
-            return EvalResult(value=True, arg=item)
+            return EvalResult(bool=True, item=item)
         else:
-            return EvalResult(value=False, arg=None)
+            return EvalResult(bool=False, item=None)
 
         
             
@@ -73,7 +73,7 @@ class ParallelGen(object):
         
     def filter(self, pred):
         _filter = _Filter(pred)
-        return self.__class__((i.arg for i in _map(_filter, self, ) if i.value))
+        return self.__class__((i.item for i in _map(_filter, self, ) if i.bool))
         
     def flatten(self):
         '''if the data source consists of several sequences, those will be chained in one'''

@@ -14,6 +14,9 @@ actually work in the interactive interpreter._
 
 
 ####API changes in 1.2
+
+Special thanks to https://github.com/kogecoo
+
 In version 1.2, the behavior of parallel ``filter`` method has been changed to same with CPython's built-in ``filter``.
 The differences are as follows:
 

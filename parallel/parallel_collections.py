@@ -61,7 +61,6 @@ class ParallelGen(object):
     
     def __init__(self, data_source):
         self.data = data_source
-        self.pool = Pool
     
     def __iter__(self):
         for item in self.data:

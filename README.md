@@ -22,7 +22,7 @@ The *pretty much backward compatible* changes are as follows:
 
 * It is now possible to use ``None`` as a predicate for ``filter``.
   * Previously, it would raise a ``TypeError``.
-* It is now possible to handle ``None`` elements in an iterable.
+* It is now possible to include ``None`` elements in an iterable.
   * Previously, ``None`` elements were always filtered regardless of the predicate.
 
 These modifications are based on [Python's Reference](https://docs.python.org/3.5/library/functions.html#filter), and [source of CPython filter method](https://github.com/python/cpython/blob/master/Python/bltinmodule.c).

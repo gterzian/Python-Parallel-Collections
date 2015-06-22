@@ -17,8 +17,8 @@ actually work in the interactive interpreter._
 
 Special thanks to https://github.com/kogecoo
 
-In version 1.2, the behavior of parallel ``filter`` method has been changed to same with CPython's built-in ``filter``.
-The differences are as follows:
+In version 1.2, the behavior of parallel ``filter`` method has been changed to match that of CPython's built-in ``filter``.
+The *pretty much backward compatible* changes are as follows:
 
 * It is now possible to use ``None`` as a predicate for ``filter``.
   * Previously, it would raise a ``TypeError``.

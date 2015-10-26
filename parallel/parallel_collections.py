@@ -1,4 +1,4 @@
-"""The main module. Use 'like from parallel import parallel'."""
+"""The main module. Use as 'from parallel import parallel'."""
 
 from collections import namedtuple
 from concurrent import futures

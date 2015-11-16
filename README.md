@@ -22,7 +22,7 @@ The *pretty much backward compatible* changes are as follows:
 * It is now possible to use ``None`` as a predicate for ``filter``.
   * Previously, it would raise a ``TypeError``.
 * It is now possible to include ``None`` elements in an iterable.
-  * Previously, ``None`` elements were always filtered regardless of the predicate.
+  * Previously, ``None`` elements were always filtered out regardless of the predicate.
 
 These modifications are based on [Python's Reference](https://docs.python.org/3.5/library/functions.html#filter), and [source of CPython filter method](https://github.com/python/cpython/blob/master/Python/bltinmodule.c).
 
@@ -30,7 +30,7 @@ These modifications are based on [Python's Reference](https://docs.python.org/3.
 Version 1.0 introduces a massive simplification of the code base. No longer do we operate on concrete 'parallel' data structures, rather we work with just one `ParallelGen` object. This object is essentially a generator with parallel map/filter/reduce methods wrapping around whatever data structure (or generator) you instantiate it with. You instantiate one by passing along an iterable to the `parallel` factory function. Every method call returns a new ParallelGen object, allowing you to chain calls and only evaluate the results when you need them. 
 
 _API changes to note:
-There is no distinction anymore between using `parallel` and `lazy_parallel`, just use parallel and everything will be lazy._
+There is no distinction anymore between using `parallel` and `lazy_parallel`, just use `parallel` and everything will be lazy._
 
 ####Getting Started
 ```python
@@ -54,7 +54,7 @@ from parallel import parallel
 [2, 4, 6, 8, 10, 12]
 ```
 
-As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you need to evaluate the generator in order to get the resuts, as is done above through the call to `list`.
+As you see every method call returns a new ParallelGen, instead of changing the current one, with the exception of `reduce` and `foreach`. Also note that you will need to evaluate the generator in order to get the resuts, as is done above through the call to `list`. A call to `reduce` will also return the result.
 
 The foreach method is equivalent to map but instead of returning a new ParallelGen it operates directly on the 
 current one and returns `None`. 
@@ -67,7 +67,7 @@ None
 [2, 4, 6, 8, 10, 12]
 ```
 
-Since every operation (except foreach) returns a collection, operations can be chained.
+Since every operation (except `foreach` and `reduce`) returns a collection, operations can be chained.
 ```python
 >>> parallel_gen =  parallel([[1,2,3],[4,5,6]])
 >>> list(parallel_gen.flatmap(double).map(str))
@@ -75,7 +75,7 @@ Since every operation (except foreach) returns a collection, operations can be c
 ```
 
 ####On being lazy
-The parallel function returns a ParallelGen instance, as will any subsequent method call. This allows you to chain method calls without evaluating the results on every operation. 
+The parallel function returns a ParallelGen instance, as will any subsequent call to `map`, `filter` and `flatmatp`. This allows you to chain method calls without evaluating the results on every operation. 
 Instead, each element in the initial datastructure or generator will be processed throught the entire pipeline of method calls one at the time, without creating intermittent datastructures. This is a great way to save memory when working with large or infinite streams of data. 
 
 _For more on this technique, see the [Python Cookbook](http://shop.oreilly.com/product/0636920027072.do) 3rd 4.13. Creating Data Processing Pipelines._

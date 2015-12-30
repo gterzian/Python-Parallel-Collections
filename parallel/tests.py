@@ -2,7 +2,11 @@ import unittest
 from itertools import chain, imap
 from collections import defaultdict
 
-from parallel_collections import parallel, lazy_parallel, ParallelSeq, ParallelList, ParallelDict, ParallelString, _Reducer, _Filter
+from parallel_collections import (
+    parallel, lazy_parallel, ParallelSeq,
+    ParallelList, ParallelDict,
+    ParallelString, _Reducer, _Filter
+)
 
 
 class TestHelpers(unittest.TestCase):

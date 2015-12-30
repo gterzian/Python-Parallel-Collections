@@ -1,8 +1,8 @@
 """The main module. Use as 'from parallel import parallel'."""
 
+import multiprocessing
 from collections import namedtuple
 from concurrent import futures
-import multiprocessing
 from itertools import chain, izip
 
 

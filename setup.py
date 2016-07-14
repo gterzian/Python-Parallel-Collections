@@ -16,7 +16,6 @@ setup(
     Examples at https://github.com/gterzian/Python-Parallel-Collections
     Feedback and contributions highly sought after!''',
     author='Gregory Terzian',
-    author_email='gregory.terzian@gmail.com',
     license='BSD License',
     url='https://github.com/gterzian/Python-Parallel-Collections',
     platforms=["any"],

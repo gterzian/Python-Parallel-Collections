@@ -46,7 +46,7 @@ from parallel import parallel
 
 ####Examples
 ```python
->>>def double_iterables(l):
+>>> def double_iterables(l):
 ...    for item in l:
 ...        return map(double, l)
 ...
@@ -92,7 +92,7 @@ Sadly lambdas, closures and partial functions cannot be passed around multiple p
 Functions passed to the map method of a list will be passed every element in the sequence and should return one element. Flatmap will first flatten the sequence then apply map to it.
 
 ```python
->>>def double_iterables(l):
+>>> def double_iterables(l):
 ...    for item in l:
 ...        return map(double, l)
 ...

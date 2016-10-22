@@ -78,18 +78,11 @@ class ParallelGen(object):
         _filter = _Filter(pred)
         return self.__class__((i.item for i in _map(_filter, self, ) if i.bool))
 
-    def flatten(self):
-        """if the data source consists of several sequences,
-        those will be chained in one
-        """
-        return self.__class__(chain(*self))
-
     def map(self, func):
         return self.__class__(_map(func, self, ))
 
     def flatmap(self, func):
-        data = self.flatten()
-        return self.__class__(_map(func, data, ))
+        return self.__class__(chain(*_map(func, self)))
 
     def reduce(self, function, init=None):
         _reducer = _Reducer(function, init)

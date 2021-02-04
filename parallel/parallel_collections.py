@@ -3,7 +3,7 @@
 import multiprocessing
 from collections import namedtuple
 from concurrent import futures
-from itertools import chain, izip
+from itertools import chain
 
 
 Pool = futures.ProcessPoolExecutor()
@@ -19,7 +19,7 @@ def _map(fn, *iterables):
     This is to avoid evaluation of the generator as done
     in futures.ProcessPoolExecutor().map.
     """
-    fs = (Pool.submit(fn, *args) for args in izip(*iterables))
+    fs = (Pool.submit(fn, *args) for args in zip(*iterables))
     for future in fs:
         yield future.result()
 

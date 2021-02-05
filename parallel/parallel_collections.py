@@ -5,6 +5,8 @@ from collections import namedtuple
 from concurrent import futures
 from itertools import chain
 
+from lambdatools import prepare_func
+
 
 Pool = futures.ProcessPoolExecutor()
 
@@ -71,21 +73,26 @@ class ParallelGen(object):
             yield item
 
     def foreach(self, func):
+        func = prepare_func(func)
         self.data = [i for i in _map(func, self)]
         return None
 
-    def filter(self, pred):
-        _filter = _Filter(pred)
+    def filter(self, func):
+        func = prepare_func(func)
+        _filter = _Filter(func)
         return self.__class__((i.item for i in _map(_filter, self, ) if i.bool))
 
     def map(self, func):
+        func = prepare_func(func)
         return self.__class__(_map(func, self, ))
 
     def flatmap(self, func):
+        func = prepare_func(func)
         return self.__class__(chain(*_map(func, self)))
 
-    def reduce(self, function, init=None):
-        _reducer = _Reducer(function, init)
+    def reduce(self, func, init=None):
+        func = prepare_func(func)
+        _reducer = _Reducer(func, init)
         for i in _map(_reducer, self, ):
             # need to consume the generator returned by _map
             pass
@@ -106,26 +113,3 @@ def parallel(data_source):
                a generator function or an iterable,
                not %s""" % data_source.__class__.__name__)
         return ParallelGen(data_source)
-
-
-"""Below is all deprecated stuff, with DeprecationWarning"""
-
-def lazy_parallel(data_source):
-    raise DeprecationWarning("""lazy_parallel has been deprecated,
-    please use "parallel" instead, it has become lazy too :)""")
-
-
-class ParallelSeq(object):
-    def __init__(self, *args, **kwargs):
-        raise DeprecationWarning("""{0} has been deprecated, please use
-         the "parallel" factory function instead
-         """.format(self.__class__.__name__))
-
-class ParallelList(ParallelSeq):
-    pass
-
-class ParallelDict(ParallelSeq):
-    pass
-
-class ParallelString(ParallelSeq):
-    pass

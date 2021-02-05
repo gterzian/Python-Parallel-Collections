@@ -2,11 +2,7 @@ import unittest
 from itertools import chain
 from collections import defaultdict
 
-from parallel_collections import (
-    parallel, lazy_parallel, ParallelSeq,
-    ParallelList, ParallelDict,
-    ParallelString, _Reducer, _Filter
-)
+from parallel_collections import parallel, _Reducer, _Filter
 
 
 class TestHelpers(unittest.TestCase):
@@ -178,6 +174,47 @@ class TestGen(unittest.TestCase):
         self.assertEqual(dict(a=['a', 'a'], b=['b']), dict(reduced))
         self.assertFalse(reduced is p)
 
+    def test_foreach_lambda(self):
+        p = parallel((d for d in [list(range(10)), list(range(10))]))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        p.foreach(lambda x: 2 * x)
+        self.assertEqual(list(p), list(map(lambda x: 2 * x, [list(range(10)), list(range(10))])))
+        self.assertTrue(p.foreach(double) is None)
+
+    def test_map_lambda(self):
+        p = parallel((d for d in [list(range(10)), list(range(10))]))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        mapped = p.map(lambda x: 2 * x)
+        self.assertEqual(list(mapped), list(map(lambda x: 2 * x, [list(range(10)), list(range(10))])))
+        self.assertFalse(mapped is p)
+
+    def test_filter_lambda(self):
+        p = parallel((d for d in ['a', '2', '3']))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        filtered = p.filter(lambda s: s.isdigit())
+        self.assertEqual(list(filtered), list(['2', '3']))
+        self.assertFalse(filtered is p)
+
+    def test_flatmap_lambda(self):
+        p = parallel([list(range(10)), list(range(10))])
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        self.assertEqual(
+            list(
+                p.flatmap(double_iterables)
+            ),
+            list(
+                map(lambda x: 2 * x, chain(*[list(range(10)), list(range(10))]))
+            )
+        )
+        self.assertFalse(p.flatmap(lambda x: 2 * x) is p)
+
+    def test_reduce_lambda(self):
+        p = parallel(range(1, 6))
+        self.assertTrue(p.__class__.__name__ == 'ParallelGen')
+        reduced = p.reduce(lambda x, y: x * y, 1)
+        self.assertEqual(120, reduced)
+        self.assertFalse(reduced is p)
+
 
 class TestFactories(unittest.TestCase):
 
@@ -197,20 +234,6 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
         p = parallel(set())
         self.assertTrue(p.__class__.__name__ == 'ParallelGen')
-
-    def test_lazy_parallel(self):
-        with self.assertRaises(DeprecationWarning):
-            lazy_parallel((d for d in [range(10), range(10)]))
-
-    def test_class_depr_warning(self):
-        with self.assertRaises(DeprecationWarning):
-            ParallelSeq((d for d in [range(10), range(10)]))
-        with self.assertRaises(DeprecationWarning):
-            ParallelList((d for d in [range(10), range(10)]))
-        with self.assertRaises(DeprecationWarning):
-            ParallelDict((d for d in [range(10), range(10)]))
-        with self.assertRaises(DeprecationWarning):
-            ParallelString((d for d in [range(10), range(10)]))
 
     def test_raises_exception(self):
         def inner_func():

@@ -1,29 +1,39 @@
 """The main module. Use as 'from parallel import parallel'."""
 
+import atexit
 import multiprocessing
+
 from collections import namedtuple
-from concurrent import futures
 from itertools import chain
 
 from lambdatools import prepare_func
 
 
-Pool = futures.ProcessPoolExecutor()
+_lock = multiprocessing.Lock()
+
+
+def init(init_lock):
+    global _lock
+
+    _lock = init_lock
+
+
+def close_pool(pool):
+    pool.close()
+
 
 '''Helper for the filter methods.
 This is a container of the result of some_evaluation(arg) and arg itself.'''
 EvalResult = namedtuple('EvalResult', ['bool', 'item'])
 
 
-def _map(fn, *iterables):
+def _map(fn, iterable, pool):
     """Using our own internal map function.
 
     This is to avoid evaluation of the generator as done
     in futures.ProcessPoolExecutor().map.
     """
-    fs = (Pool.submit(fn, *args) for args in zip(*iterables))
-    for future in fs:
-        yield future.result()
+    return pool.map(fn, iterable)
 
 
 class _Filter(object):
@@ -47,26 +57,38 @@ class _Filter(object):
 
 
 class _Reducer(object):
-
-    """Helper for the reducer methods."""
+    """Helper for the reducer methods"""
 
     def __init__(self, func, init=None):
         self.func = func
-        self.list = multiprocessing.Manager().list([init])
+        self.ns = multiprocessing.Manager().Namespace()
+        self.ns.result = init
 
     def __call__(self, item):
-        aggregate = self.func(self.list[0], item)
-        self.list[0] = aggregate
+        global _lock
+        _lock.acquire()
+        try:
+            aggregate = self.func(self.ns.result, item)
+            self.ns.result = aggregate
+        finally:
+            _lock.release()
 
     @property
     def result(self):
-        return self.list[0]
+        return self.ns.result
 
 
 class ParallelGen(object):
 
-    def __init__(self, data_source):
+    def __init__(self, data_source, pool_size=None, pool=None):
         self.data = data_source
+        self.pool = pool or multiprocessing.Pool(
+            processes=pool_size,
+            initializer=init,
+            initargs=(_lock,),
+        )
+
+        atexit.register(close_pool, pool=self.pool)
 
     def __iter__(self):
         for item in self.data:
@@ -74,37 +96,37 @@ class ParallelGen(object):
 
     def foreach(self, func):
         func = prepare_func(func)
-        self.data = [i for i in _map(func, self)]
+        self.data = [i for i in _map(func, self, self.pool)]
         return None
 
     def filter(self, func):
         func = prepare_func(func)
         _filter = _Filter(func)
-        return self.__class__((i.item for i in _map(_filter, self, ) if i.bool))
+        return self.__class__((i.item for i in _map(_filter, self, self.pool) if i.bool), pool=self.pool)
 
     def map(self, func):
         func = prepare_func(func)
-        return self.__class__(_map(func, self, ))
+        return self.__class__(_map(func, self, self.pool), pool=self.pool)
 
     def flatmap(self, func):
         func = prepare_func(func)
-        return self.__class__(chain(*_map(func, self)))
+        return self.__class__(chain(*_map(func, self, self.pool)), pool=self.pool)
 
     def reduce(self, func, init=None):
         func = prepare_func(func)
         _reducer = _Reducer(func, init)
-        for i in _map(_reducer, self, ):
+        for i in _map(_reducer, self, self.pool):
             # need to consume the generator returned by _map
             pass
         return _reducer.result
 
 
-def parallel(data_source):
+def parallel(data_source, pool_size=None):
     """factory function that returns ParallelGen objects,
     pass an iterable as data_source"""
     if data_source.__class__.__name__ == 'function':
         if data_source().__class__.__name__ == 'generator':
-            return ParallelGen(data_source())
+            return ParallelGen(data_source(), pool_size=pool_size)
     else:
         try:
             iter(data_source)
@@ -112,4 +134,4 @@ def parallel(data_source):
             raise TypeError("""supplied data source must be a generator,
                a generator function or an iterable,
                not %s""" % data_source.__class__.__name__)
-        return ParallelGen(data_source)
+        return ParallelGen(data_source, pool_size=pool_size)

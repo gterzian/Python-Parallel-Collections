@@ -2,7 +2,7 @@ import unittest
 from itertools import chain
 from collections import defaultdict
 
-from parallel_collections import parallel, _Reducer, _Filter
+from parallel_collections import parallel, _Reducer
 
 
 class TestHelpers(unittest.TestCase):
@@ -19,14 +19,6 @@ class TestHelpers(unittest.TestCase):
         reducer('a')
         reducer('b')
         self.assertEqual(reducer.result, {'a': ['a', 'a'], 'b': ['b']})
-
-    def test_filter_none(self):
-        _filter = _Filter(is_digit)
-        self.assertEqual(_filter('a'), (False, None))
-
-    def test_filter_returns_passing_item(self):
-        _filter = _Filter(is_digit)
-        self.assertEqual(_filter('1'), (True, '1'))
 
 
 class TestGen(unittest.TestCase):

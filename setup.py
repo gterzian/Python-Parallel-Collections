@@ -3,7 +3,7 @@ import parallel
 
 setup(
     name='python-parallel-collections',
-    data_files=[('', ['requirements.txt', 'README.md', '.gitignore']),],
+    data_files=[('', ['README.md', '.gitignore']),],
     version='2.0.0',
     packages=['parallel',],
     description='parallel support for map/reduce style operations',
@@ -19,7 +19,6 @@ setup(
     license='BSD License',
     url='https://github.com/gterzian/Python-Parallel-Collections',
     platforms=["any"],
-    requires=['futures',],
     classifiers=[
         'Natural Language :: English',
         'Operating System :: OS Independent',
